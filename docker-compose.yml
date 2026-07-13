@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: drd_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: drd_user
+      POSTGRES_PASSWORD: drd_password
+      POSTGRES_DB: drd_portfolio
+    ports:
+      - '5432:5432'
+    volumes:
+      - drd_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U drd_user -d drd_portfolio']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  drd_postgres_data:

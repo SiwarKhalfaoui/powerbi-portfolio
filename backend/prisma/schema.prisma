@@ -1,0 +1,166 @@
+// Prisma schema — Dr.D Portfolio Platform
+// Module 1: Authentication + User profile.
+// Module 2: Power BI projects (this file).
+// Future modules (public portfolios, gallery) will add new models here and
+// relate them to User / Project via foreign keys.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Availability {
+  FREELANCE
+  CDI
+  STAGE
+  CONSULTANT
+  NOT_SPECIFIED
+}
+
+model User {
+  id                String       @id @default(uuid())
+  email             String       @unique
+  passwordHash      String
+
+  // Identity
+  firstName         String
+  lastName          String
+  professionalTitle String?
+  bio               String?      @db.Text
+  profilePhotoUrl   String?
+
+  // Location & languages
+  country           String?
+  city              String?
+  languages         String[]     @default([])
+
+  // Professional
+  skills            String[]     @default([])
+  availability      Availability @default(NOT_SPECIFIED)
+
+  // External links
+  linkedinUrl       String?
+  githubUrl         String?
+  websiteUrl        String?
+
+  // Access control
+  role              Role         @default(USER)
+  isEmailVerified   Boolean      @default(false)
+
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  projects            Project[]
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@map("users")
+}
+
+// Refresh tokens are persisted (hashed) rather than trusted as pure stateless
+// JWTs so a user can be logged out of one or all devices on demand, and a
+// stolen/leaked refresh token can be revoked without rotating server secrets.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// Same defense-in-depth pattern as RefreshToken: the raw token is only ever
+// emailed to the user, never stored — only its hash is persisted, and it is
+// single-use (usedAt) and short-lived (expiresAt).
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+enum ProjectType {
+  DASHBOARD
+  REPORT
+  ANALYSIS
+  TEMPLATE
+  CASE_STUDY
+}
+
+enum ProjectLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  PRIVATE
+  ARCHIVED
+}
+
+// A user's Power BI project — the core content unit of the platform.
+// Scope for this module: create/edit/delete + draft-publish status.
+// The public portfolio and gallery modules (next) will later query
+// `where: { status: PUBLISHED }` against this same table.
+model Project {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title            String
+  // Unique across the whole platform — this is what the future public
+  // portfolio page will use in the URL (drd.io/username/project-slug).
+  slug             String  @unique
+  shortDescription String?
+  description      String? @db.Text
+
+  businessDomain String?
+  projectType    ProjectType  @default(DASHBOARD)
+  toolsUsed      String[]     @default([])
+  level          ProjectLevel @default(BEGINNER)
+
+  coverImageUrl    String?
+  galleryImageUrls String[] @default([])
+
+  // The doc requires explicit confirmation of ownership before a report
+  // link can be attached — enforced in the service layer, not just the UI.
+  interactiveLink    String?
+  ownershipConfirmed Boolean @default(false)
+  videoUrl           String?
+  datasetUrl         String?
+
+  results String?  @db.Text
+  tags    String[] @default([])
+
+  status    ProjectStatus @default(DRAFT)
+  viewCount Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([slug])
+  @@map("projects")
+}
