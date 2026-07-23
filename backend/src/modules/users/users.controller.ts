@@ -21,3 +21,9 @@ export const changeMyPassword = asyncHandler(async (req: Request, res: Response)
   await usersService.changePassword(req.user.id, req.body);
   return sendSuccess(res, 200, 'Password changed successfully. Please log in again.');
 });
+
+export const publishPortfolio = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) throw ApiError.unauthorized();
+  const user = await usersService.setPortfolioPublished(req.user.id, req.body.portfolioPublished);
+  return sendSuccess(res, 200, 'Portfolio visibility updated', { user });
+});

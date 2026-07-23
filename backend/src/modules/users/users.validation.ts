@@ -12,9 +12,12 @@ export const updateProfileSchema = z.object({
   languages: z.array(z.string().trim().min(1)).max(20).optional(),
   skills: z.array(z.string().trim().min(1)).max(40).optional(),
   availability: z.nativeEnum(Availability).optional(),
+  services: z.array(z.string().trim().min(1)).max(20).optional(),
   linkedinUrl: z.string().url().optional().nullable().or(z.literal('')),
   githubUrl: z.string().url().optional().nullable().or(z.literal('')),
   websiteUrl: z.string().url().optional().nullable().or(z.literal('')),
+
+  publicContactEmail: z.string().email().optional().nullable().or(z.literal('')),
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
@@ -28,3 +31,8 @@ export const changePasswordSchema = z.object({
     .regex(/[0-9]/, 'Password must contain a number'),
 });
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const publishPortfolioSchema = z.object({
+  portfolioPublished: z.boolean(),
+});
+export type PublishPortfolioInput = z.infer<typeof publishPortfolioSchema>;

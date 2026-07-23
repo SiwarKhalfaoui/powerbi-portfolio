@@ -43,3 +43,9 @@ export const uploadImage = asyncHandler(async (req: Request, res: Response) => {
   const url = `${req.protocol}://${req.get('host')}${projectImageUrlFor(req.file.filename)}`;
   return sendSuccess(res, 201, 'Image uploaded', { url });
 });
+
+export const reorder = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) throw ApiError.unauthorized();
+  await projectsService.reorderProjects(req.user.id, req.body.orderedIds);
+  return sendSuccess(res, 200, 'Projects reordered');
+});

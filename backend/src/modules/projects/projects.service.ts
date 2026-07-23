@@ -16,7 +16,6 @@ function nullifyEmptyStrings<T extends Record<string, unknown>>(input: T): T {
   return result;
 }
 
-/** Deletes any image files that are no longer referenced after a project is updated or removed. */
 function cleanupReplacedImages(existing: Project, next: { coverImageUrl?: string | null; galleryImageUrls?: string[] }) {
   if (next.coverImageUrl !== undefined && next.coverImageUrl !== existing.coverImageUrl) {
     deleteProjectImageFile(existing.coverImageUrl);
@@ -28,9 +27,11 @@ function cleanupReplacedImages(existing: Project, next: { coverImageUrl?: string
 }
 
 export async function listMyProjects(userId: string) {
+  // Ordered by the user's own portfolio order (doc Module 3), not just
+  // recency — this view is what they use to decide/see that order.
   return prisma.project.findMany({
     where: { userId },
-    orderBy: { updatedAt: 'desc' },
+    orderBy: { order: 'asc' },
   });
 }
 
@@ -40,8 +41,7 @@ async function getOwnedProjectOr404(id: string, userId: string) {
     throw ApiError.notFound('Project not found');
   }
   if (project.userId !== userId) {
-    // 404 rather than 403 — don't reveal that a project with this id
-    // exists at all to someone who doesn't own it.
+  
     throw ApiError.notFound('Project not found');
   }
   return project;
@@ -54,11 +54,14 @@ export async function getMyProjectById(id: string, userId: string) {
 export async function createProject(userId: string, input: CreateProjectInput) {
   const slug = await generateUniqueProjectSlug(input.title);
 
+  const existingCount = await prisma.project.count({ where: { userId } });
+
   return prisma.project.create({
     data: {
       ...nullifyEmptyStrings(input),
       slug,
       userId,
+      order: existingCount,
     },
   });
 }
@@ -90,4 +93,23 @@ export async function deleteProject(id: string, userId: string) {
   await prisma.project.delete({ where: { id } });
   deleteProjectImageFile(existing.coverImageUrl);
   existing.galleryImageUrls.forEach(deleteProjectImageFile);
+}
+
+
+export async function reorderProjects(userId: string, orderedIds: string[]): Promise<void> {
+  const myProjects = await prisma.project.findMany({
+    where: { userId },
+    select: { id: true },
+  });
+  const myIds = new Set(myProjects.map((p) => p.id));
+
+  const isValidReorder =
+    orderedIds.length === myIds.size && orderedIds.every((id) => myIds.has(id));
+  if (!isValidReorder) {
+    throw ApiError.badRequest('orderedIds must contain exactly all of your project ids, once each');
+  }
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) => prisma.project.update({ where: { id }, data: { order: index } })),
+  );
 }

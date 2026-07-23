@@ -6,6 +6,7 @@ import {
   createProjectSchema,
   updateProjectSchema,
   projectIdParamsSchema,
+  reorderProjectsSchema,
 } from './projects.validation';
 import * as projectsController from './projects.controller';
 
@@ -15,6 +16,7 @@ router.use(authenticate); // every project route is owner-only for now
 
 router.get('/me', projectsController.listMine);
 router.post('/upload-image', uploadProjectImage, projectsController.uploadImage);
+router.patch('/reorder', validate({ body: reorderProjectsSchema }), projectsController.reorder);
 
 router.post('/', validate({ body: createProjectSchema }), projectsController.create);
 router.get('/:id', validate({ params: projectIdParamsSchema }), projectsController.getOne);

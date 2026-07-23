@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate';
 import { validate } from '../../middleware/validate';
-import { updateProfileSchema, changePasswordSchema } from './users.validation';
+import { updateProfileSchema, changePasswordSchema, publishPortfolioSchema } from './users.validation';
 import * as usersController from './users.controller';
 
 const router = Router();
@@ -14,6 +14,11 @@ router.patch(
   '/me/password',
   validate({ body: changePasswordSchema }),
   usersController.changeMyPassword,
+);
+router.patch(
+  '/me/portfolio',
+  validate({ body: publishPortfolioSchema }),
+  usersController.publishPortfolio,
 );
 
 export default router;
