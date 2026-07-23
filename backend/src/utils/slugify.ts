@@ -26,3 +26,19 @@ export async function generateUniqueProjectSlug(title: string): Promise<string> 
   const suffix = Math.random().toString(36).slice(2, 7);
   return `${base}-${suffix}`;
 }
+
+/**
+ * Generates a URL-safe slug for a user's public portfolio, from their name.
+ * Called once, the first time the portfolio is published — never
+ * regenerated afterwards even if the user edits their name later, so a
+ * shared public URL never breaks. Mirrors generateUniqueProjectSlug.
+ */
+export async function generateUniqueUserSlug(firstName: string, lastName: string): Promise<string> {
+  const base = slugify(`${firstName} ${lastName}`) || 'user';
+
+  const existing = await prisma.user.findUnique({ where: { slug: base } });
+  if (!existing) return base;
+
+  const suffix = Math.random().toString(36).slice(2, 7);
+  return `${base}-${suffix}`;
+}
