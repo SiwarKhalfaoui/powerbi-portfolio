@@ -8,7 +8,7 @@ import { Label } from '../../components/ui/Label';
 import { Select } from '../../components/ui/Select';
 import { FieldError } from '../../components/ui/FieldError';
 import { Button } from '../../components/ui/Button';
-import { ImageUploadField } from './ImageUploadField';
+import { ImageUploadField } from '../../components/ui/ImageUploadField';
 import { projectFormSchema, ProjectFormValues, arrayToCsv, toProjectPayload } from './projectsValidation';
 import { ProjectFormPayload } from './projectsApi';
 import { getErrorMessage } from '../../lib/errors';
@@ -17,6 +17,7 @@ import {
   PROJECT_TYPE_LABELS,
   PROJECT_LEVEL_LABELS,
   PROJECT_STATUS_LABELS,
+  BUSINESS_DOMAIN_LABELS,
 } from '../../types';
 
 interface ProjectFormProps {
@@ -33,6 +34,7 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -40,7 +42,7 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
       title: project?.title ?? '',
       shortDescription: project?.shortDescription ?? '',
       description: project?.description ?? '',
-      businessDomain: project?.businessDomain ?? '',
+      businessDomain: project?.businessDomain ?? 'OTHER',
       projectType: project?.projectType ?? 'DASHBOARD',
       toolsUsed: arrayToCsv(project?.toolsUsed ?? []),
       level: project?.level ?? 'BEGINNER',
@@ -63,6 +65,20 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
       setServerError(getErrorMessage(err, "Impossible d'enregistrer le projet."));
     }
   }
+
+  const watchedInteractiveLink = watch('interactiveLink');
+  const watchedOwnershipConfirmed = watch('ownershipConfirmed');
+  const isPreviewableLink =
+    Boolean(watchedInteractiveLink) &&
+    watchedOwnershipConfirmed &&
+    (() => {
+      try {
+        new URL(watchedInteractiveLink);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate className="space-y-8">
@@ -117,7 +133,13 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="businessDomain">Domaine métier</Label>
-            <Input id="businessDomain" placeholder="Finance, RH, Sales..." {...register('businessDomain')} />
+            <Select id="businessDomain" {...register('businessDomain')}>
+              {Object.entries(BUSINESS_DOMAIN_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </Select>
           </div>
           <div>
             <Label htmlFor="projectType">Type de projet</Label>
@@ -211,6 +233,32 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
           </label>
         </div>
         <FieldError message={errors.ownershipConfirmed?.message} />
+
+        {watchedInteractiveLink && !watchedOwnershipConfirmed && (
+          <p className="text-xs text-mist-400">
+            Cochez la case ci-dessus pour afficher l'aperçu du rapport.
+          </p>
+        )}
+
+        {isPreviewableLink && (
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-mist-900">Aperçu</p>
+            <div className="overflow-hidden rounded-lg border border-mist-200">
+              <iframe
+                key={watchedInteractiveLink}
+                src={watchedInteractiveLink}
+                title="Aperçu du rapport Power BI"
+                className="h-80 w-full"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                loading="lazy"
+              />
+            </div>
+            <p className="mt-1.5 text-xs text-mist-400">
+              Pour s'afficher, le rapport doit être publié via « Publier sur le Web » dans Power
+              BI. Un lien de partage privé ne fonctionnera pas ici.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>

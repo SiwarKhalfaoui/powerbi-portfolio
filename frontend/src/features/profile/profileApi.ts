@@ -11,10 +11,12 @@ export interface UpdateProfilePayload {
   city?: string | null;
   languages?: string[];
   skills?: string[];
+  services?: string[];
   availability?: User['availability'];
   linkedinUrl?: string | null;
   githubUrl?: string | null;
   websiteUrl?: string | null;
+  publicContactEmail?: string | null;
 }
 
 export interface ChangePasswordPayload {

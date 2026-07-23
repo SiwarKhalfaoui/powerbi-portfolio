@@ -6,8 +6,8 @@ export function ProjectCreatePage() {
   const navigate = useNavigate();
 
   async function handleSubmit(payload: ProjectFormPayload) {
-    const project = await createProjectRequest(payload);
-    navigate(`/dashboard/projects/${project.id}/edit`, { replace: true });
+    await createProjectRequest(payload);
+    navigate('/dashboard/projects', { replace: true });
   }
 
   return (

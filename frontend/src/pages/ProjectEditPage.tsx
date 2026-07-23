@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Trash2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { ProjectForm } from '../features/projects/ProjectForm';
 import {
   getProjectRequest,
@@ -17,6 +18,8 @@ export function ProjectEditPage() {
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -31,15 +34,20 @@ export function ProjectEditPage() {
     setProject(updated);
   }
 
-  async function handleDelete() {
-    if (!id || !project) return;
-    const confirmed = window.confirm(`Supprimer « ${project.title} » ? Cette action est irréversible.`);
-    if (!confirmed) return;
-    await deleteProjectRequest(id);
-    navigate('/dashboard/projects', { replace: true });
+  async function confirmDelete() {
+    if (!id) return;
+    setIsDeleting(true);
+    try {
+      await deleteProjectRequest(id);
+      navigate('/dashboard/projects', { replace: true });
+    } catch (err) {
+      setLoadError(getErrorMessage(err, 'Impossible de supprimer ce projet.'));
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
   }
 
-  if (loadError) {
+  if (loadError && !project) {
     return (
       <div className="max-w-2xl">
         <div className="flex items-start gap-2 rounded-lg bg-danger-50 px-3.5 py-3 text-sm text-danger">
@@ -68,13 +76,23 @@ export function ProjectEditPage() {
           </Link>
           <h1 className="font-display text-2xl font-semibold text-mist-900">{project.title}</h1>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleDelete}>
+        <Button variant="ghost" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
           <Trash2 className="h-4 w-4" />
           Supprimer
         </Button>
       </div>
 
       <ProjectForm project={project} onSubmit={handleSubmit} submitLabel="Enregistrer les modifications" />
+
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        title="Supprimer ce projet ?"
+        description={`« ${project.title} » sera définitivement supprimé, ainsi que ses images. Cette action est irréversible.`}
+        confirmLabel="Supprimer"
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+      />
     </div>
   );
 }

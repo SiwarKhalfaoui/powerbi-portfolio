@@ -8,6 +8,7 @@ import { Label } from '../../components/ui/Label';
 import { Select } from '../../components/ui/Select';
 import { FieldError } from '../../components/ui/FieldError';
 import { Button } from '../../components/ui/Button';
+import { ImageUploadField } from '../../components/ui/ImageUploadField';
 import { useAuth } from '../auth/useAuth';
 import { updateProfileRequest } from './profileApi';
 import { profileFormSchema, ProfileFormValues } from './profileValidation';
@@ -30,6 +31,7 @@ export function ProfileForm({ user }: { user: User }) {
   const { updateUser } = useAuth();
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(user.profilePhotoUrl);
 
   const {
     register,
@@ -46,10 +48,12 @@ export function ProfileForm({ user }: { user: User }) {
       city: user.city ?? '',
       languages: arrayToCsv(user.languages),
       skills: arrayToCsv(user.skills),
+      services: arrayToCsv(user.services),
       availability: user.availability,
       linkedinUrl: user.linkedinUrl ?? '',
       githubUrl: user.githubUrl ?? '',
       websiteUrl: user.websiteUrl ?? '',
+      publicContactEmail: user.publicContactEmail ?? '',
     },
   });
 
@@ -62,14 +66,17 @@ export function ProfileForm({ user }: { user: User }) {
         lastName: values.lastName,
         professionalTitle: values.professionalTitle || null,
         bio: values.bio || null,
+        profilePhotoUrl: profilePhotoUrl || null,
         country: values.country || null,
         city: values.city || null,
         languages: csvToArray(values.languages),
         skills: csvToArray(values.skills),
+        services: csvToArray(values.services),
         availability: values.availability,
         linkedinUrl: values.linkedinUrl || null,
         githubUrl: values.githubUrl || null,
         websiteUrl: values.websiteUrl || null,
+        publicContactEmail: values.publicContactEmail || null,
       });
       updateUser(updated);
       setStatus('success');
@@ -96,6 +103,14 @@ export function ProfileForm({ user }: { user: User }) {
 
       <section className="space-y-5">
         <h2 className="font-display text-base font-semibold text-mist-900">Identité</h2>
+
+        <ImageUploadField
+          label="Photo de profil"
+          images={profilePhotoUrl ? [profilePhotoUrl] : []}
+          onChange={(images) => setProfilePhotoUrl(images[0] ?? null)}
+          helpText="JPEG, PNG, WEBP ou GIF, 5MB max."
+        />
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="firstName">Prénom</Label>
@@ -171,7 +186,20 @@ export function ProfileForm({ user }: { user: User }) {
       </section>
 
       <section className="space-y-5 border-t border-mist-200 pt-6">
-        <h2 className="font-display text-base font-semibold text-mist-900">Liens</h2>
+        <h2 className="font-display text-base font-semibold text-mist-900">Services proposés</h2>
+        <div>
+          <Label htmlFor="services">Services (pour les freelances)</Label>
+          <Input
+            id="services"
+            placeholder="Création de dashboard, Formation Power BI, Audit de données"
+            {...register('services')}
+          />
+          <p className="mt-1.5 text-xs text-mist-400">Séparez chaque service par une virgule.</p>
+        </div>
+      </section>
+
+      <section className="space-y-5 border-t border-mist-200 pt-6">
+        <h2 className="font-display text-base font-semibold text-mist-900">Liens & contact</h2>
         <div>
           <Label htmlFor="linkedinUrl">LinkedIn</Label>
           <Input
@@ -201,6 +229,20 @@ export function ProfileForm({ user }: { user: User }) {
             {...register('websiteUrl')}
           />
           <FieldError message={errors.websiteUrl?.message} />
+        </div>
+        <div>
+          <Label htmlFor="publicContactEmail">Email de contact public</Label>
+          <Input
+            id="publicContactEmail"
+            type="email"
+            placeholder="contact@exemple.com"
+            hasError={Boolean(errors.publicContactEmail)}
+            {...register('publicContactEmail')}
+          />
+          <p className="mt-1.5 text-xs text-mist-400">
+            Distinct de votre email de connexion — c'est celui-ci qui sera visible publiquement.
+          </p>
+          <FieldError message={errors.publicContactEmail?.message} />
         </div>
       </section>
 
