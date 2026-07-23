@@ -31,3 +31,5 @@ coverage/
 # Misc
 *.tsbuildinfo
 backend/uploads/
+
+desktop.ini
