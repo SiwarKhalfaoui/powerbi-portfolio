@@ -46,11 +46,20 @@ model User {
   // Professional
   skills            String[]     @default([])
   availability      Availability @default(NOT_SPECIFIED)
+  services          String[]     @default([])
 
   // External links
   linkedinUrl       String?
   githubUrl         String?
   websiteUrl        String?
+  // Distinct from the login email — this is what's shown publicly (doc:
+  // "Email ou formulaire sécurisé", explicitly not the private account email).
+  publicContactEmail String?
+
+  // Public portfolio (Module 3) — slug is generated once, the first time
+  // the user publishes, and never changes afterwards (see users.service.ts).
+  slug               String?  @unique
+  portfolioPublished Boolean  @default(false)
 
   // Access control
   role              Role         @default(USER)
@@ -59,6 +68,9 @@ model User {
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
   projects            Project[]
+  experiences         Experience[]
+  formations          Formation[]
+  certifications      Certification[]
 
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -120,10 +132,7 @@ enum ProjectStatus {
   ARCHIVED
 }
 
-// A user's Power BI project — the core content unit of the platform.
-// Scope for this module: create/edit/delete + draft-publish status.
-// The public portfolio and gallery modules (next) will later query
-// `where: { status: PUBLISHED }` against this same table.
+
 model Project {
   id     String @id @default(uuid())
   userId String
@@ -136,7 +145,7 @@ model Project {
   shortDescription String?
   description      String? @db.Text
 
-  businessDomain String?
+  businessDomain BusinessDomain?
   projectType    ProjectType  @default(DASHBOARD)
   toolsUsed      String[]     @default([])
   level          ProjectLevel @default(BEGINNER)
@@ -157,10 +166,88 @@ model Project {
   status    ProjectStatus @default(DRAFT)
   viewCount Int           @default(0)
 
+  // doc Module 3 — "définir l'ordre des projets". Assigned at creation
+  // (append to the end of the user's list) and rewritten in bulk by
+  // reorderProjects() when the user rearranges their portfolio.
+  order Int @default(0) @map("display_order")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([slug])
   @@map("projects")
+}
+
+
+model Experience {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  company     String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("experiences")
+}
+
+
+model Formation {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  degree      String
+  institution String
+  startDate   DateTime?
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("formations")
+}
+
+
+model Certification {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  issuer        String
+  issueDate     DateTime?
+  credentialUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("certifications")
+}
+
+// doc Module 4 field 5 + Module 6 "Exemples de catégories" — a closed list so
+// gallery filtering (Module 6) can group projects consistently.
+enum BusinessDomain {
+  FINANCE
+  COMMERCIAL
+  HR
+  MARKETING
+  SUPPLY_CHAIN
+  LOGISTICS
+  HEALTHCARE
+  EDUCATION
+  REAL_ESTATE
+  PRODUCTION
+  ECOMMERCE
+  ESG
+  DATA_ENGINEERING
+  MICROSOFT_FABRIC
+  ARTIFICIAL_INTELLIGENCE
+  OTHER
 }
