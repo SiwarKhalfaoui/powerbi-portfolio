@@ -7,6 +7,13 @@ const optionalUrl = z
     message: 'URL invalide',
   });
 
+const optionalEmail = z
+  .string()
+  .trim()
+  .refine((val) => val === '' || z.string().email().safeParse(val).success, {
+    message: 'Adresse email invalide',
+  });
+
 export const profileFormSchema = z.object({
   firstName: z.string().trim().min(1, 'Le prénom est requis').max(80),
   lastName: z.string().trim().min(1, 'Le nom est requis').max(80),
@@ -16,10 +23,12 @@ export const profileFormSchema = z.object({
   city: z.string().trim().max(80).optional().or(z.literal('')),
   languages: z.string().max(300).optional().or(z.literal('')), // comma-separated in the UI
   skills: z.string().max(500).optional().or(z.literal('')), // comma-separated in the UI
+  services: z.string().max(500).optional().or(z.literal('')), // comma-separated in the UI
   availability: z.enum(['FREELANCE', 'CDI', 'STAGE', 'CONSULTANT', 'NOT_SPECIFIED']),
   linkedinUrl: optionalUrl,
   githubUrl: optionalUrl,
   websiteUrl: optionalUrl,
+  publicContactEmail: optionalEmail,
 });
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 

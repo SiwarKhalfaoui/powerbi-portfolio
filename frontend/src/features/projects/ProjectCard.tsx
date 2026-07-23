@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Eye, ImageOff, Pencil, Trash2 } from 'lucide-react';
-import { Project, PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS } from '../../types';
+import { Project, PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS, BUSINESS_DOMAIN_LABELS } from '../../types';
 
 const STATUS_BADGE_CLASSES: Record<Project['status'], string> = {
   DRAFT: 'bg-mist-100 text-mist-700',
@@ -8,6 +8,8 @@ const STATUS_BADGE_CLASSES: Record<Project['status'], string> = {
   PRIVATE: 'bg-violet/10 text-violet-600',
   ARCHIVED: 'bg-mist-100 text-mist-400',
 };
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 
 interface ProjectCardProps {
   project: Project;
@@ -35,7 +37,11 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-mist-700">{PROJECT_TYPE_LABELS[project.projectType]}</p>
+        <p className="mt-1 text-xs text-mist-700">
+          {PROJECT_TYPE_LABELS[project.projectType]}
+          {project.businessDomain && ` · ${BUSINESS_DOMAIN_LABELS[project.businessDomain]}`} · Modifié le{' '}
+          {dateFormatter.format(new Date(project.updatedAt))}
+        </p>
 
         {project.shortDescription && (
           <p className="mt-2 line-clamp-2 text-sm text-mist-700">{project.shortDescription}</p>

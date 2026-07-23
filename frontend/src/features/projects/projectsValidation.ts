@@ -12,7 +12,11 @@ export const projectFormSchema = z
     title: z.string().trim().min(1, 'Le titre est requis').max(150),
     shortDescription: z.string().trim().max(280).optional().or(z.literal('')),
     description: z.string().trim().max(5000).optional().or(z.literal('')),
-    businessDomain: z.string().trim().max(80).optional().or(z.literal('')),
+    businessDomain: z.enum([
+      'FINANCE', 'COMMERCIAL', 'HR', 'MARKETING', 'SUPPLY_CHAIN', 'LOGISTICS',
+      'HEALTHCARE', 'EDUCATION', 'REAL_ESTATE', 'PRODUCTION', 'ECOMMERCE', 'ESG',
+      'DATA_ENGINEERING', 'MICROSOFT_FABRIC', 'ARTIFICIAL_INTELLIGENCE', 'OTHER',
+    ]),
     projectType: z.enum(['DASHBOARD', 'REPORT', 'ANALYSIS', 'TEMPLATE', 'CASE_STUDY']),
     toolsUsed: z.string().max(300).optional().or(z.literal('')), // comma-separated in the UI
     level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
@@ -53,7 +57,7 @@ export function toProjectPayload(
     title: values.title,
     shortDescription: values.shortDescription || '',
     description: values.description || '',
-    businessDomain: values.businessDomain || '',
+    businessDomain: values.businessDomain,
     projectType: values.projectType,
     toolsUsed: csvToArray(values.toolsUsed),
     level: values.level,
