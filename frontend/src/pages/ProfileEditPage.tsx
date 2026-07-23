@@ -2,6 +2,10 @@ import { useAuth } from '../features/auth/useAuth';
 import { Card } from '../components/ui/Card';
 import { ProfileForm } from '../features/profile/ProfileForm';
 import { ChangePasswordForm } from '../features/profile/ChangePasswordForm';
+import { ExperiencesManager } from '../features/profile/ExperiencesManager';
+import { FormationsManager } from '../features/profile/FormationsManager';
+import { CertificationsManager } from '../features/profile/CertificationsManager';
+import { PortfolioPublishPanel } from '../features/profile/PortfolioPublishPanel';
 
 export function ProfileEditPage() {
   const { user } = useAuth();
@@ -19,8 +23,42 @@ export function ProfileEditPage() {
         </p>
       </div>
 
+      <div>
+        <h2 className="font-display text-lg font-semibold text-mist-900">Portfolio public</h2>
+        <p className="mt-1 text-sm text-mist-700">
+          Publiez votre portfolio pour obtenir une URL personnalisée et un QR code à partager.
+        </p>
+      </div>
+      <Card>
+        <PortfolioPublishPanel />
+      </Card>
+
       <Card>
         <ProfileForm user={user} />
+      </Card>
+
+      <div>
+        <h2 className="font-display text-lg font-semibold text-mist-900">Expériences professionnelles</h2>
+        <p className="mt-1 text-sm text-mist-700">Votre parcours professionnel.</p>
+      </div>
+      <Card>
+        <ExperiencesManager />
+      </Card>
+
+      <div>
+        <h2 className="font-display text-lg font-semibold text-mist-900">Formations</h2>
+        <p className="mt-1 text-sm text-mist-700">Vos diplômes et formations.</p>
+      </div>
+      <Card>
+        <FormationsManager />
+      </Card>
+
+      <div>
+        <h2 className="font-display text-lg font-semibold text-mist-900">Certifications</h2>
+        <p className="mt-1 text-sm text-mist-700">Microsoft, Google, ou autres certifications.</p>
+      </div>
+      <Card>
+        <CertificationsManager />
       </Card>
 
       <div>

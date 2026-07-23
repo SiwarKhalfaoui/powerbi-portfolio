@@ -54,3 +54,10 @@ export async function uploadProjectImageRequest(file: File): Promise<string> {
   );
   return data.data.url;
 }
+
+// doc Module 3 — "définir l'ordre des projets". Sends the full ordered list
+// of the user's project ids; backend rejects anything that isn't exactly a
+// permutation of all of them (see reorderProjects in projects.service.ts).
+export async function reorderProjectsRequest(orderedIds: string[]): Promise<void> {
+  await api.patch('/projects/reorder', { orderedIds });
+}
