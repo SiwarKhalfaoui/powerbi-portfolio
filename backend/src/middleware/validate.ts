@@ -13,7 +13,7 @@ interface ValidationSchemas {
  * Throws a ZodError on failure, caught by the global error handler.
  */
 export function validate(schemas: ValidationSchemas) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (schemas.body) {
       req.body = schemas.body.parse(req.body);
     }

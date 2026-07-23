@@ -9,8 +9,7 @@ import { isProduction } from '../config/env';
  * Single place that turns any thrown error into a consistent JSON response.
  * Must be registered LAST, after all routes.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   // Known, intentional errors
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
