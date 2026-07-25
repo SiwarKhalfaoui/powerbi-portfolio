@@ -35,20 +35,23 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
       {serverError && (
-        <div className="flex items-start gap-2 rounded-lg bg-danger-50 px-3.5 py-3 text-sm text-danger">
+        <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-3 text-sm text-red-300">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{serverError}</span>
         </div>
       )}
 
       <div>
-        <Label htmlFor="email">Adresse email</Label>
+        <Label htmlFor="email" className="text-mist-200">
+          Adresse email
+        </Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
           placeholder="vous@exemple.com"
           hasError={Boolean(errors.email)}
+          className="border-white/10 bg-white/5 text-white placeholder:text-mist-500 focus-visible:ring-offset-0"
           {...register('email')}
         />
         <FieldError message={errors.email?.message} />
@@ -56,8 +59,10 @@ export function LoginForm() {
 
       <div>
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Link to="/forgot-password" className="text-xs font-medium text-teal-700 hover:underline">
+          <Label htmlFor="password" className="text-mist-200">
+            Mot de passe
+          </Label>
+          <Link to="/forgot-password" className="text-xs font-medium text-teal hover:underline">
             Mot de passe oublié ?
           </Link>
         </div>
@@ -67,6 +72,7 @@ export function LoginForm() {
           autoComplete="current-password"
           placeholder="••••••••"
           hasError={Boolean(errors.password)}
+          className="border-white/10 bg-white/5 text-white placeholder:text-mist-500 focus-visible:ring-offset-0"
           {...register('password')}
         />
         <FieldError message={errors.password?.message} />
@@ -76,9 +82,9 @@ export function LoginForm() {
         Se connecter
       </Button>
 
-      <p className="text-center text-sm text-mist-700">
+      <p className="text-center text-sm text-mist-400">
         Pas encore de compte ?{' '}
-        <Link to="/signup" className="font-medium text-teal-700 hover:underline">
+        <Link to="/signup" className="font-medium text-teal hover:underline">
           Créer un compte
         </Link>
       </p>

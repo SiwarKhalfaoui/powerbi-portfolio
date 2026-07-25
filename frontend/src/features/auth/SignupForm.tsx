@@ -11,6 +11,9 @@ import { useAuth } from './useAuth';
 import { signupSchema, SignupFormValues } from './authValidation';
 import { getErrorMessage } from '../../lib/errors';
 
+const fieldClass =
+  'border-white/10 bg-white/5 text-white placeholder:text-mist-500 focus-visible:ring-offset-0';
+
 export function SignupForm() {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +38,7 @@ export function SignupForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
       {serverError && (
-        <div className="flex items-start gap-2 rounded-lg bg-danger-50 px-3.5 py-3 text-sm text-danger">
+        <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-3 text-sm text-red-300">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{serverError}</span>
         </div>
@@ -43,23 +46,29 @@ export function SignupForm() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="firstName">Prénom</Label>
+          <Label htmlFor="firstName" className="text-mist-200">
+            Prénom
+          </Label>
           <Input
             id="firstName"
             autoComplete="given-name"
             placeholder="Jean"
             hasError={Boolean(errors.firstName)}
+            className={fieldClass}
             {...register('firstName')}
           />
           <FieldError message={errors.firstName?.message} />
         </div>
         <div>
-          <Label htmlFor="lastName">Nom</Label>
+          <Label htmlFor="lastName" className="text-mist-200">
+            Nom
+          </Label>
           <Input
             id="lastName"
             autoComplete="family-name"
             placeholder="Dupont"
             hasError={Boolean(errors.lastName)}
+            className={fieldClass}
             {...register('lastName')}
           />
           <FieldError message={errors.lastName?.message} />
@@ -67,32 +76,38 @@ export function SignupForm() {
       </div>
 
       <div>
-        <Label htmlFor="email">Adresse email</Label>
+        <Label htmlFor="email" className="text-mist-200">
+          Adresse email
+        </Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
           placeholder="vous@exemple.com"
           hasError={Boolean(errors.email)}
+          className={fieldClass}
           {...register('email')}
         />
         <FieldError message={errors.email?.message} />
       </div>
 
       <div>
-        <Label htmlFor="password">Mot de passe</Label>
+        <Label htmlFor="password" className="text-mist-200">
+          Mot de passe
+        </Label>
         <Input
           id="password"
           type="password"
           autoComplete="new-password"
           placeholder="••••••••"
           hasError={Boolean(errors.password)}
+          className={fieldClass}
           {...register('password')}
         />
         {errors.password ? (
           <FieldError message={errors.password.message} />
         ) : (
-          <p className="mt-1.5 text-xs text-mist-400">
+          <p className="mt-1.5 text-xs text-mist-500">
             8 caractères minimum, avec majuscule, minuscule et chiffre.
           </p>
         )}
@@ -102,9 +117,9 @@ export function SignupForm() {
         Créer mon compte
       </Button>
 
-      <p className="text-center text-sm text-mist-700">
+      <p className="text-center text-sm text-mist-400">
         Déjà un compte ?{' '}
-        <Link to="/login" className="font-medium text-teal-700 hover:underline">
+        <Link to="/login" className="font-medium text-teal hover:underline">
           Se connecter
         </Link>
       </p>

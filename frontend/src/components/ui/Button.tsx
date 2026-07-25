@@ -12,6 +12,7 @@ const buttonVariants = cva(
         accent: 'bg-teal text-ink-950 hover:bg-teal-600 shadow-glow',
         outline: 'border border-mist-200 bg-white text-mist-900 hover:bg-mist-50',
         ghost: 'text-mist-700 hover:bg-mist-100 hover:text-mist-900',
+        glass: 'border border-white/15 bg-white/5 text-white backdrop-blur-sm hover:bg-white/10',
         danger: 'bg-danger text-white hover:bg-red-600',
       },
       size: {
