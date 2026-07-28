@@ -146,7 +146,7 @@ export function PublicPortfolioPage() {
           ) : (
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {projects.map((project) => (
-                <PublicProjectCard key={project.id} project={project} />
+                <PublicProjectCard key={project.id} project={project} ownerSlug={profile.slug} />
               ))}
             </div>
           )}

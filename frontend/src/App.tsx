@@ -14,6 +14,7 @@ import { ProjectsListPage } from './pages/ProjectsListPage';
 import { ProjectCreatePage } from './pages/ProjectCreatePage';
 import { ProjectEditPage } from './pages/ProjectEditPage';
 import { PublicPortfolioPage } from './pages/PublicPortfolioPage';
+import { PublicProjectDetailPage } from './pages/PublicProjectDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/dashboard/projects/:id/edit" element={<ProjectEditPage />} />
             </Route>
 
+            <Route path="/:slug/:projectSlug" element={<PublicProjectDetailPage />} />
             <Route path="/:slug" element={<PublicPortfolioPage />} />
 
             <Route path="*" element={<NotFoundPage />} />

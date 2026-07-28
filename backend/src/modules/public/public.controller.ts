@@ -7,3 +7,8 @@ export const getPortfolio = asyncHandler(async (req: Request, res: Response) => 
   const portfolio = await publicService.getPublicPortfolioBySlug(req.params.slug);
   return sendSuccess(res, 200, 'Portfolio retrieved', { portfolio });
 });
+
+export const getProjectDetail = asyncHandler(async (req: Request, res: Response) => {
+  const detail = await publicService.getPublicProjectBySlug(req.params.slug, req.params.projectSlug);
+  return sendSuccess(res, 200, 'Project retrieved', detail);
+});

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, FolderKanban, Globe2, LayoutGrid, Plus, User as UserIcon } from 'lucide-react';
+import { ArrowRight, ExternalLink, FolderKanban, LayoutGrid, Plus, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../features/auth/useAuth';
 import { Avatar } from '../components/ui/Avatar';
 import { Card } from '../components/ui/Card';
@@ -8,26 +8,24 @@ import { Button } from '../components/ui/Button';
 import { listMyProjectsRequest } from '../features/projects/projectsApi';
 import { AVAILABILITY_LABELS, Project } from '../types';
 
+// doc Module 2 — champs enrichissables du profil (exclut firstName/lastName,
+// toujours remplis à l'inscription, et availability, qui a une valeur par
+// défaut valide). Élargi depuis la liste de 5 champs d'origine, qui
+// affichait 100% dès que ces 5-là seulement étaient remplis.
 const PROFILE_FIELDS = [
+  'profilePhotoUrl',
   'professionalTitle',
   'bio',
   'country',
+  'city',
+  'languages',
   'skills',
+  'services',
   'linkedinUrl',
+  'githubUrl',
+  'websiteUrl',
+  'publicContactEmail',
 ] as const;
-
-const UPCOMING_MODULES = [
-  {
-    icon: Globe2,
-    title: 'Portfolio public',
-    description: 'Publiez votre page à une URL personnalisée : drd.io/votre-nom.',
-  },
-  {
-    icon: LayoutGrid,
-    title: 'Galerie publique',
-    description: 'Découvrez et filtrez les projets publiés par la communauté.',
-  },
-];
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -123,24 +121,47 @@ export function DashboardPage() {
         </div>
       </Card>
 
+      <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet/10 text-violet-600">
+            <ExternalLink className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-display text-lg font-semibold text-mist-900">
+              {user.portfolioPublished ? 'Portfolio publié' : 'Portfolio non publié'}
+            </p>
+            <p className="text-sm text-mist-700">
+              {user.portfolioPublished
+                ? 'Votre portfolio est visible publiquement.'
+                : 'Publiez votre portfolio pour obtenir votre lien public.'}
+            </p>
+          </div>
+        </div>
+        <Link to="/dashboard/profile">
+          <Button variant="outline" size="sm">
+            Gérer la publication
+          </Button>
+        </Link>
+      </Card>
+
       <div>
         <h2 className="font-display text-base font-semibold text-mist-900">Prochainement</h2>
         <p className="mt-1 text-sm text-mist-700">
-          Ces modules arrivent dans les prochaines itérations du projet.
+          Ce module arrive dans une prochaine itération du projet.
         </p>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {UPCOMING_MODULES.map(({ icon: Icon, title, description }) => (
-            <Card key={title} className="opacity-90">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-mist-100 text-mist-700">
-                <Icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-3 font-display text-sm font-semibold text-mist-900">{title}</h3>
-              <p className="mt-1.5 text-xs text-mist-700">{description}</p>
-              <span className="mt-3 inline-block rounded-full bg-amber/10 px-2 py-0.5 text-[11px] font-medium text-amber-600">
-                Bientôt disponible
-              </span>
-            </Card>
-          ))}
+          <Card className="opacity-90">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-mist-100 text-mist-700">
+              <LayoutGrid className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 font-display text-sm font-semibold text-mist-900">Galerie publique</h3>
+            <p className="mt-1.5 text-xs text-mist-700">
+              Découvrez et filtrez les projets publiés par la communauté.
+            </p>
+            <span className="mt-3 inline-block rounded-full bg-amber/10 px-2 py-0.5 text-[11px] font-medium text-amber-600">
+              Bientôt disponible
+            </span>
+          </Card>
         </div>
       </div>
     </div>

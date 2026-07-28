@@ -213,3 +213,15 @@ export interface PublicPortfolio {
   certifications: Certification[];
   projects: Project[];
 }
+
+export interface PublicProjectOwner {
+  slug: string;
+  firstName: string;
+  lastName: string;
+  profilePhotoUrl: string | null;
+}
+
+export interface PublicProjectDetail {
+  project: Project;
+  owner: PublicProjectOwner;
+}
