@@ -19,8 +19,6 @@ export interface User {
   githubUrl: string | null;
   websiteUrl: string | null;
   publicContactEmail: string | null;
-  // Module 3 — public portfolio. slug is null until the user publishes for
-  // the first time; portfolioPublished is the explicit visibility toggle.
   slug: string | null;
   portfolioPublished: boolean;
   role: Role;
@@ -54,7 +52,6 @@ export const AVAILABILITY_LABELS: Record<Availability, string> = {
   NOT_SPECIFIED: 'Non précisé',
 };
 
-// doc Module 2, field 8 — "Expériences : Parcours professionnel"
 export interface Experience {
   id: string;
   userId: string;
@@ -68,7 +65,6 @@ export interface Experience {
   updatedAt: string;
 }
 
-// doc Module 2, field 9 — "Formations : Diplômes et formations"
 export interface Formation {
   id: string;
   userId: string;
@@ -82,7 +78,6 @@ export interface Formation {
   updatedAt: string;
 }
 
-// doc Module 2, field 10 — "Certifications : Microsoft, Google, autres"
 export interface Certification {
   id: string;
   userId: string;
@@ -98,7 +93,6 @@ export type ProjectType = 'DASHBOARD' | 'REPORT' | 'ANALYSIS' | 'TEMPLATE' | 'CA
 export type ProjectLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 export type ProjectStatus = 'DRAFT' | 'PUBLISHED' | 'PRIVATE' | 'ARCHIVED';
 
-// doc Module 4 field 5 + Module 6 "Exemples de catégories"
 export type BusinessDomain =
   | 'FINANCE'
   | 'COMMERCIAL'
@@ -157,7 +151,6 @@ export interface Project {
   tags: string[];
   status: ProjectStatus;
   viewCount: number;
-  // doc Module 3 — "définir l'ordre des projets" (backend field: order).
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -184,9 +177,6 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   ARCHIVED: 'Archivé',
 };
 
-// Module 3 — public portfolio page. Mirrors backend's serializePublicProfile
-// (utils/serializePublicProfile.ts): a strict whitelist, never the full User
-// type — no email, role, or isEmailVerified.
 export interface PublicProfile {
   slug: string;
   firstName: string;
@@ -212,6 +202,9 @@ export interface PublicPortfolio {
   formations: Formation[];
   certifications: Certification[];
   projects: Project[];
+  // doc Module 3 — vrai uniquement pour le propriétaire qui prévisualise
+  // son portfolio pas encore publié.
+  isPreview: boolean;
 }
 
 export interface PublicProjectOwner {
@@ -224,4 +217,35 @@ export interface PublicProjectOwner {
 export interface PublicProjectDetail {
   project: Project;
   owner: PublicProjectOwner;
+  isPreview: boolean;
+}
+
+export interface GalleryProjectOwner {
+  slug: string;
+  firstName: string;
+  lastName: string;
+  profilePhotoUrl: string | null;
+}
+
+export interface GalleryProjectItem extends Project {
+  owner: GalleryProjectOwner;
+}
+
+export type GallerySort = 'recent' | 'popular';
+
+export interface GalleryFilters {
+  search?: string;
+  businessDomain?: BusinessDomain;
+  projectType?: ProjectType;
+  level?: ProjectLevel;
+  tool?: string;
+  sort?: GallerySort;
+  page?: number;
+}
+
+export interface GalleryResult {
+  projects: GalleryProjectItem[];
+  total: number;
+  page: number;
+  limit: number;
 }

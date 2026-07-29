@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderKanban, LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react';
+import { FolderKanban, LayoutDashboard, LayoutGrid, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../../features/auth/useAuth';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
@@ -48,6 +48,13 @@ export function Navbar() {
           >
             <UserIcon className="h-4 w-4" />
             Mon profil
+          </Link>
+          <Link
+            to="/gallery"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-mist-700 hover:bg-mist-100 hover:text-mist-900"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Galerie
           </Link>
         </nav>
 

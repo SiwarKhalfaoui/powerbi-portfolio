@@ -4,6 +4,7 @@ import usersRoutes from '../modules/users/users.routes';
 import projectsRoutes from '../modules/projects/projects.routes';
 import credentialsRoutes from '../modules/credentials/credentials.routes';
 import publicRoutes from '../modules/public/public.routes';
+import galleryRoutes from '../modules/gallery/gallery.routes';
 
 const router = Router();
 
@@ -16,8 +17,6 @@ router.use('/users', usersRoutes);
 router.use('/users/me', credentialsRoutes);
 router.use('/projects', projectsRoutes);
 router.use('/public', publicRoutes);
-
-// Future modules plug in here, e.g.:
-// router.use('/gallery', galleryRoutes);
+router.use('/gallery', galleryRoutes);
 
 export default router;
