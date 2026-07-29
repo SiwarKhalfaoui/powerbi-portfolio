@@ -9,9 +9,16 @@ export interface PublicPortfolio {
   formations: Formation[];
   certifications: Certification[];
   projects: Project[];
+  // doc Module 3 — "prévisualiser le portfolio avant publication". True
+  // only when the viewer is the owner AND the portfolio isn't actually
+  // published yet — lets the frontend show a "preview, not live" banner.
+  isPreview: boolean;
 }
 
-export async function getPublicPortfolioBySlug(slug: string): Promise<PublicPortfolio> {
+export async function getPublicPortfolioBySlug(
+  slug: string,
+  viewerId?: string,
+): Promise<PublicPortfolio> {
   const user = await prisma.user.findUnique({
     where: { slug },
     include: {
@@ -25,7 +32,11 @@ export async function getPublicPortfolioBySlug(slug: string): Promise<PublicPort
     },
   });
 
-  if (!user || !user.portfolioPublished) {
+  const isOwner = Boolean(user && viewerId && viewerId === user.id);
+
+  // Same 404-not-403 philosophy as everywhere else — except for the owner
+  // previewing their own unpublished portfolio, who must see it.
+  if (!user || (!user.portfolioPublished && !isOwner)) {
     throw ApiError.notFound('Portfolio not found');
   }
 
@@ -35,6 +46,7 @@ export async function getPublicPortfolioBySlug(slug: string): Promise<PublicPort
     formations: user.formations,
     certifications: user.certifications,
     projects: user.projects,
+    isPreview: isOwner && !user.portfolioPublished,
   };
 }
 
@@ -48,15 +60,22 @@ export interface PublicProjectOwner {
 export interface PublicProjectDetail {
   project: Project;
   owner: PublicProjectOwner;
+  isPreview: boolean;
 }
 
-
+/** doc Module 3/5 — page de détail projet. A project must still be
+ * PUBLISHED regardless of who's asking — preview only bypasses the
+ * portfolio-level publish toggle, never a project's own draft status, so a
+ * preview always shows exactly what publishing would make visible. */
 export async function getPublicProjectBySlug(
   userSlug: string,
   projectSlug: string,
+  viewerId?: string,
 ): Promise<PublicProjectDetail> {
   const user = await prisma.user.findUnique({ where: { slug: userSlug } });
-  if (!user || !user.portfolioPublished) {
+  const isOwner = Boolean(user && viewerId && viewerId === user.id);
+
+  if (!user || (!user.portfolioPublished && !isOwner)) {
     throw ApiError.notFound('Project not found');
   }
 
@@ -65,18 +84,22 @@ export async function getPublicProjectBySlug(
     throw ApiError.notFound('Project not found');
   }
 
-  const updated = await prisma.project.update({
-    where: { id: project.id },
-    data: { viewCount: { increment: 1 } },
-  });
+  // Don't inflate view counts when the owner is checking their own preview.
+  const finalProject = isOwner
+    ? project
+    : await prisma.project.update({
+        where: { id: project.id },
+        data: { viewCount: { increment: 1 } },
+      });
 
   return {
-    project: updated,
+    project: finalProject,
     owner: {
       slug: user.slug!,
       firstName: user.firstName,
       lastName: user.lastName,
       profilePhotoUrl: user.profilePhotoUrl,
     },
+    isPreview: isOwner && !user.portfolioPublished,
   };
 }

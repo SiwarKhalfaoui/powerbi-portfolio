@@ -7,3 +7,8 @@ export async function setPortfolioPublishedRequest(portfolioPublished: boolean):
   });
   return data.data.user;
 }
+
+export async function previewPortfolioRequest(): Promise<User> {
+  const { data } = await api.post<ApiEnvelope<{ user: User }>>('/users/me/portfolio/preview');
+  return data.data.user;
+}

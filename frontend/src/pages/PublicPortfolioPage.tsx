@@ -1,21 +1,27 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Mail, Linkedin, Github, Globe, MapPin, Loader2 } from 'lucide-react';
+import { Mail, Linkedin, Github, Globe, MapPin, Loader2, Eye } from 'lucide-react';
 import { fetchPublicPortfolio } from '../features/public/publicApi';
+import { useAuth } from '../features/auth/useAuth';
 import { AVAILABILITY_LABELS } from '../types';
 import { PublicProjectCard } from '../features/public/PublicProjectCard';
 
 export function PublicPortfolioPage() {
   const { slug } = useParams<{ slug: string }>();
+  const { isInitializing } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-portfolio', slug],
+    // isInitializing doit être résolu d'abord : si le propriétaire est
+    // connecté, son jeton doit être restauré dans cet onglet (voir
+    // AuthInitializer) avant que cette requête parte, sinon son propre
+    // aperçu échouerait une fois pour de bon (retry: false ci-dessous).
     queryFn: () => fetchPublicPortfolio(slug as string),
-    enabled: Boolean(slug),
+    enabled: Boolean(slug) && !isInitializing,
     retry: false,
   });
 
-  if (isLoading) {
+  if (isLoading || isInitializing) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-mist-50">
         <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
@@ -35,10 +41,17 @@ export function PublicPortfolioPage() {
     );
   }
 
-  const { profile, experiences, formations, certifications, projects } = data;
+  const { profile, experiences, formations, certifications, projects, isPreview } = data;
 
   return (
     <div className="min-h-screen bg-mist-50">
+      {isPreview && (
+        <div className="flex items-center justify-center gap-2 bg-amber px-4 py-2 text-sm font-medium text-ink-950">
+          <Eye className="h-4 w-4" />
+          Mode aperçu — non publié, visible par vous uniquement
+        </div>
+      )}
+
       <header className="border-b border-mist-200 bg-white">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-4 py-12 text-center">
           {profile.profilePhotoUrl ? (

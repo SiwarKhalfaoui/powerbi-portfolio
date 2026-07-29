@@ -20,5 +20,6 @@ router.patch(
   validate({ body: publishPortfolioSchema }),
   usersController.publishPortfolio,
 );
+router.post('/me/portfolio/preview', usersController.previewPortfolio);
 
 export default router;

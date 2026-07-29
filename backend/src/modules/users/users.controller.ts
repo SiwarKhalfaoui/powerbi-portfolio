@@ -27,3 +27,9 @@ export const publishPortfolio = asyncHandler(async (req: Request, res: Response)
   const user = await usersService.setPortfolioPublished(req.user.id, req.body.portfolioPublished);
   return sendSuccess(res, 200, 'Portfolio visibility updated', { user });
 });
+
+export const previewPortfolio = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) throw ApiError.unauthorized();
+  const user = await usersService.ensurePortfolioSlug(req.user.id);
+  return sendSuccess(res, 200, 'Preview slug ready', { user });
+});

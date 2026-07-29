@@ -6,7 +6,6 @@ import { generateUniqueUserSlug } from '../../utils/slugify';
 import { UpdateProfileInput, ChangePasswordInput } from './users.validation';
 import { Experience, Formation, Certification } from '@prisma/client';
 
-
 export interface UserProfile extends PublicUser {
   experiences: Experience[];
   formations: Formation[];
@@ -28,7 +27,6 @@ export async function getUserById(userId: string): Promise<UserProfile> {
   return serializeUser(user) as UserProfile;
 }
 
-/** Converts empty-string optional fields (from a cleared form input) to null. */
 function normalizeOptional(value?: string | null) {
   if (value === undefined) return undefined;
   return value === '' ? null : value;
@@ -69,32 +67,39 @@ export async function changePassword(
   const passwordHash = await hashPassword(input.newPassword);
   await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
 
-  // Revoke all existing refresh tokens so other sessions must re-authenticate.
   await prisma.refreshToken.updateMany({
     where: { userId, revokedAt: null },
     data: { revokedAt: new Date() },
   });
 }
 
-export async function setPortfolioPublished(
-  userId: string,
-  published: boolean,
-): Promise<PublicUser> {
+/** Generates and persists the portfolio slug if the user doesn't have one
+ * yet — idempotent, safe to call repeatedly. Shared by setPortfolioPublished
+ * (first publish) and previewPortfolio (first preview, before ever
+ * publishing): whichever happens first is what actually creates the slug. */
+export async function ensurePortfolioSlug(userId: string): Promise<PublicUser> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw ApiError.notFound('User not found');
   }
-
-  // Generate the slug lazily, exactly once, the first time the user
-  // actually publishes — never on profile edits, never regenerated later.
-  let slug = user.slug;
-  if (published && !slug) {
-    slug = await generateUniqueUserSlug(user.firstName, user.lastName);
+  if (user.slug) {
+    return serializeUser(user);
   }
+  const slug = await generateUniqueUserSlug(user.firstName, user.lastName);
+  const updated = await prisma.user.update({ where: { id: userId }, data: { slug } });
+  return serializeUser(updated);
+}
 
+export async function setPortfolioPublished(
+  userId: string,
+  published: boolean,
+): Promise<PublicUser> {
+  if (published) {
+    await ensurePortfolioSlug(userId);
+  }
   const updated = await prisma.user.update({
     where: { id: userId },
-    data: { portfolioPublished: published, slug },
+    data: { portfolioPublished: published },
   });
   return serializeUser(updated);
 }

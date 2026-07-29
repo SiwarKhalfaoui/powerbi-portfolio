@@ -1,20 +1,33 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ExternalLink, Loader2, ImageOff } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, ImageOff, Eye } from 'lucide-react';
 import { fetchPublicProject } from '../features/public/publicApi';
+import { useAuth } from '../features/auth/useAuth';
+import { Avatar } from '../components/ui/Avatar';
 import { PROJECT_TYPE_LABELS, PROJECT_LEVEL_LABELS, BUSINESS_DOMAIN_LABELS } from '../types';
 
 export function PublicProjectDetailPage() {
   const { slug, projectSlug } = useParams<{ slug: string; projectSlug: string }>();
+  const navigate = useNavigate();
+  const { isInitializing } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-project', slug, projectSlug],
     queryFn: () => fetchPublicProject(slug as string, projectSlug as string),
-    enabled: Boolean(slug) && Boolean(projectSlug),
+    enabled: Boolean(slug) && Boolean(projectSlug) && !isInitializing,
     retry: false,
   });
 
-  if (isLoading) {
+  function handleBack() {
+    const hasInternalHistory = Boolean((window.history.state as { idx?: number } | null)?.idx);
+    if (hasInternalHistory) {
+      navigate(-1);
+    } else if (data) {
+      navigate(`/${data.owner.slug}`);
+    }
+  }
+
+  if (isLoading || isInitializing) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-mist-50">
         <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
@@ -34,18 +47,33 @@ export function PublicProjectDetailPage() {
     );
   }
 
-  const { project, owner } = data;
+  const { project, owner, isPreview } = data;
 
   return (
     <div className="min-h-screen bg-mist-50">
+      {isPreview && (
+        <div className="flex items-center justify-center gap-2 bg-amber px-4 py-2 text-sm font-medium text-ink-950">
+          <Eye className="h-4 w-4" />
+          Mode aperçu — non publié, visible par vous uniquement
+        </div>
+      )}
+
       <header className="border-b border-mist-200 bg-white">
-        <div className="mx-auto max-w-4xl px-4 py-6">
-          <Link
-            to={`/${owner.slug}`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-mist-700 hover:text-teal-700"
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-6">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="flex items-center gap-1.5 text-sm font-medium text-mist-700 hover:text-teal-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            {owner.firstName} {owner.lastName}
+            Retour
+          </button>
+
+          <Link to={`/${owner.slug}`} className="flex items-center gap-2 hover:opacity-80">
+            <Avatar name={`${owner.firstName} ${owner.lastName}`} photoUrl={owner.profilePhotoUrl} size="sm" />
+            <span className="text-sm font-medium text-mist-900">
+              {owner.firstName} {owner.lastName}
+            </span>
           </Link>
         </div>
       </header>
@@ -115,33 +143,41 @@ export function PublicProjectDetailPage() {
           </section>
         )}
 
-        {project.interactiveLink && (
-          <section className="mt-8">
-            <h2 className="font-display text-base font-semibold text-mist-900">Rapport interactif</h2>
-            <div className="mt-3 overflow-hidden rounded-2xl border border-mist-200 shadow-card">
-              <iframe
-                src={project.interactiveLink}
-                title={project.title}
-                className="h-[480px] w-full"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-              />
-            </div>
-            <a
-              href={project.interactiveLink}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-teal-700 hover:underline"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Ouvrir dans un nouvel onglet
-            </a>
-          </section>
-        )}
+        {/* doc Module 5 — un message explicite remplace le silence total
+            quand ni lien interactif ni vidéo ne sont fournis. */}
+        <section className="mt-8">
+          <h2 className="font-display text-base font-semibold text-mist-900">Aperçu</h2>
 
-        {project.videoUrl && (
-          <section className="mt-8">
-            <h2 className="font-display text-base font-semibold text-mist-900">Vidéo de démonstration</h2>
-            <div className="mt-3 overflow-hidden rounded-2xl border border-mist-200 shadow-card">
+          {!project.interactiveLink && !project.videoUrl && (
+            <p className="mt-3 rounded-2xl border border-dashed border-mist-200 bg-white px-4 py-6 text-center text-sm text-mist-400">
+              Aucun aperçu interactif disponible pour ce projet.
+            </p>
+          )}
+
+          {project.interactiveLink && (
+            <div className="mt-3">
+              <div className="overflow-hidden rounded-2xl border border-mist-200 shadow-card">
+                <iframe
+                  src={project.interactiveLink}
+                  title={project.title}
+                  className="h-[480px] w-full"
+                  sandbox="allow-scripts allow-same-origin allow-popups"
+                />
+              </div>
+              <a
+                href={project.interactiveLink}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-teal-700 hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Ouvrir dans un nouvel onglet
+              </a>
+            </div>
+          )}
+
+          {project.videoUrl && (
+            <div className="mt-4 overflow-hidden rounded-2xl border border-mist-200 shadow-card">
               <iframe
                 src={project.videoUrl}
                 title={project.title + ' - vidéo'}
@@ -149,8 +185,8 @@ export function PublicProjectDetailPage() {
                 allowFullScreen
               />
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
         {project.datasetUrl && (
           <section className="mt-8">
