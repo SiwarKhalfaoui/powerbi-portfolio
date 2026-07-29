@@ -8,10 +8,6 @@ import { Button } from '../components/ui/Button';
 import { listMyProjectsRequest } from '../features/projects/projectsApi';
 import { AVAILABILITY_LABELS, Project } from '../types';
 
-// doc Module 2 — champs enrichissables du profil (exclut firstName/lastName,
-// toujours remplis à l'inscription, et availability, qui a une valeur par
-// défaut valide). Élargi depuis la liste de 5 champs d'origine, qui
-// affichait 100% dès que ces 5-là seulement étaient remplis.
 const PROFILE_FIELDS = [
   'profilePhotoUrl',
   'professionalTitle',
@@ -144,26 +140,22 @@ export function DashboardPage() {
         </Link>
       </Card>
 
-      <div>
-        <h2 className="font-display text-base font-semibold text-mist-900">Prochainement</h2>
-        <p className="mt-1 text-sm text-mist-700">
-          Ce module arrive dans une prochaine itération du projet.
-        </p>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Card className="opacity-90">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-mist-100 text-mist-700">
-              <LayoutGrid className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-sm font-semibold text-mist-900">Galerie publique</h3>
-            <p className="mt-1.5 text-xs text-mist-700">
-              Découvrez et filtrez les projets publiés par la communauté.
-            </p>
-            <span className="mt-3 inline-block rounded-full bg-amber/10 px-2 py-0.5 text-[11px] font-medium text-amber-600">
-              Bientôt disponible
-            </span>
-          </Card>
+      <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber/10 text-amber-600">
+            <LayoutGrid className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-display text-lg font-semibold text-mist-900">Galerie publique</p>
+            <p className="text-sm text-mist-700">Découvrez les projets publiés par la communauté.</p>
+          </div>
         </div>
-      </div>
+        <Link to="/gallery">
+          <Button variant="outline" size="sm">
+            Explorer
+          </Button>
+        </Link>
+      </Card>
     </div>
   );
 }
