@@ -10,11 +10,8 @@ export interface GalleryProjectOwner {
 }
 
 export async function listGalleryProjects(query: GalleryQuery) {
-  const { search, businessDomain, projectType, level, tool, sort, page, limit } = query;
+  const { search, businessDomain, projectType, level, tool, tag, sort, page, limit } = query;
 
-  // Un projet ne peut jamais être plus visible ici que dans son propre
-  // portfolio : même filtre que la page de détail projet (public.service.ts)
-  // pour ne jamais lister un projet dont le lien mènerait à un 404.
   const where: Prisma.ProjectWhereInput = {
     status: ProjectStatus.PUBLISHED,
     user: { portfolioPublished: true },
@@ -29,6 +26,20 @@ export async function listGalleryProjects(query: GalleryQuery) {
       { title: { contains: search, mode: 'insensitive' } },
       { shortDescription: { contains: search, mode: 'insensitive' } },
     ];
+  }
+
+  if (tag) {
+    const normalizedTag = tag.trim().toLowerCase();
+    const matches = await prisma.$queryRaw<{ id: string }[]>(
+      Prisma.sql`SELECT id FROM projects WHERE EXISTS (
+        SELECT 1 FROM unnest(tags) AS t WHERE lower(trim(t)) = ${normalizedTag}
+      )`,
+    );
+    const matchingIds = matches.map((m) => m.id);
+    if (matchingIds.length === 0) {
+      return { projects: [], total: 0, page, limit };
+    }
+    where.id = { in: matchingIds };
   }
 
   const orderBy: Prisma.ProjectOrderByWithRelationInput =
@@ -52,9 +63,6 @@ export async function listGalleryProjects(query: GalleryQuery) {
   return {
     projects: projects.map((p) => {
       const { user, ...project } = p;
-      // user.slug est non-null ici : le filtre where garantit
-      // user.portfolioPublished === true, ce qui n'est jamais vrai sans slug
-      // (voir setPortfolioPublished dans users.service.ts).
       return { ...project, owner: user as GalleryProjectOwner };
     }),
     total,

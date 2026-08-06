@@ -12,10 +12,6 @@ export function PublicPortfolioPage() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-portfolio', slug],
-    // isInitializing doit être résolu d'abord : si le propriétaire est
-    // connecté, son jeton doit être restauré dans cet onglet (voir
-    // AuthInitializer) avant que cette requête parte, sinon son propre
-    // aperçu échouerait une fois pour de bon (retry: false ci-dessous).
     queryFn: () => fetchPublicPortfolio(slug as string),
     enabled: Boolean(slug) && !isInitializing,
     retry: false,
@@ -42,6 +38,10 @@ export function PublicPortfolioPage() {
   }
 
   const { profile, experiences, formations, certifications, projects, isPreview } = data;
+
+  // doc Module 3 — "mettre en avant certains projets", distinct de l'ordre.
+  const featuredProjects = projects.filter((p) => p.isFeatured);
+  const regularProjects = projects.filter((p) => !p.isFeatured);
 
   return (
     <div className="min-h-screen bg-mist-50">
@@ -90,50 +90,50 @@ export function PublicPortfolioPage() {
             </span>
 
             {profile.publicContactEmail && (
-              <a
-                href={'mailto:' + profile.publicContactEmail}
-                className="flex items-center gap-1 rounded-full bg-teal/10 px-3 py-1 text-xs font-medium text-teal-700 hover:bg-teal/20"
-              >
-                <Mail className="h-3.5 w-3.5" />
-                Contact
-              </a>
-            )}
+            <a
+              href={'mailto:' + profile.publicContactEmail}
+              className="flex items-center gap-1 rounded-full bg-teal/10 px-3 py-1 text-xs font-medium text-teal-700 hover:bg-teal/20"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Contact
+            </a>
+          )}
 
-            {profile.linkedinUrl && (
-              <a
-                href={profile.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
-              >
-                <Linkedin className="h-3.5 w-3.5" />
-                LinkedIn
-              </a>
-            )}
+          {profile.linkedinUrl && (
+            <a
+              href={profile.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
+            >
+              <Linkedin className="h-3.5 w-3.5" />
+              LinkedIn
+            </a>
+          )}
 
-            {profile.githubUrl && (
-              <a
-                href={profile.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
-              >
-                <Github className="h-3.5 w-3.5" />
-                GitHub
-              </a>
-            )}
+          {profile.githubUrl && (
+            <a
+              href={profile.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
+            >
+              <Github className="h-3.5 w-3.5" />
+              GitHub
+            </a>
+          )}
 
-            {profile.websiteUrl && (
-              <a
-                href={profile.websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
-              >
-                <Globe className="h-3.5 w-3.5" />
-                Site web
-              </a>
-            )}
+          {profile.websiteUrl && (
+            <a
+              href={profile.websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 rounded-full bg-mist-100 px-3 py-1 text-xs font-medium text-mist-700 hover:bg-mist-200"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Site web
+            </a>
+          )}
           </div>
 
           {profile.skills.length > 0 && (
@@ -152,18 +152,33 @@ export function PublicPortfolioPage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-4 py-10">
-        <section>
-          <h2 className="font-display text-lg font-semibold text-mist-900">Projets</h2>
-          {projects.length === 0 ? (
-            <p className="mt-3 text-sm text-mist-700">Aucun projet publié pour le moment.</p>
-          ) : (
+        {projects.length === 0 && (
+          <p className="mt-3 text-sm text-mist-700">Aucun projet publié pour le moment.</p>
+        )}
+
+        {featuredProjects.length > 0 && (
+          <section>
+            <h2 className="font-display text-lg font-semibold text-mist-900">Projets phares</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {projects.map((project) => (
+              {featuredProjects.map((project) => (
                 <PublicProjectCard key={project.id} project={project} ownerSlug={profile.slug} />
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
+
+        {regularProjects.length > 0 && (
+          <section className={featuredProjects.length > 0 ? 'mt-10' : ''}>
+            <h2 className="font-display text-lg font-semibold text-mist-900">
+              {featuredProjects.length > 0 ? 'Tous les projets' : 'Projets'}
+            </h2>
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {regularProjects.map((project) => (
+                <PublicProjectCard key={project.id} project={project} ownerSlug={profile.slug} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {experiences.length > 0 && (
           <section className="mt-10">

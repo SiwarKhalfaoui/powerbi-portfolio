@@ -30,6 +30,8 @@ export const createProjectSchema = z
     results: z.string().trim().max(2000).optional().or(z.literal('')),
     tags: z.array(z.string().trim().min(1)).max(20).default([]),
     status: z.nativeEnum(ProjectStatus).default(ProjectStatus.DRAFT),
+    // doc Module 3 — "mettre en avant certains projets".
+    isFeatured: z.boolean().default(false),
   })
   .refine((data) => !data.interactiveLink || data.ownershipConfirmed, {
 
@@ -56,6 +58,7 @@ export const updateProjectSchema = z.object({
   results: z.string().trim().max(2000).optional().or(z.literal('')),
   tags: z.array(z.string().trim().min(1)).max(20).optional(),
   status: z.nativeEnum(ProjectStatus).optional(),
+  isFeatured: z.boolean().optional(),
 });
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 

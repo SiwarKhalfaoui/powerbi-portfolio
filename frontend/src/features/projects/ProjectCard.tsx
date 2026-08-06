@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Eye, ImageOff, Pencil, Trash2 } from 'lucide-react';
+import { Eye, ImageOff, Pencil, Star, Trash2 } from 'lucide-react';
 import { Project, PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS, BUSINESS_DOMAIN_LABELS } from '../../types';
 
 const STATUS_BADGE_CLASSES: Record<Project['status'], string> = {
@@ -19,11 +19,17 @@ interface ProjectCardProps {
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   return (
     <div className="overflow-hidden rounded-2xl border border-mist-200 bg-white shadow-card">
-      <div className="flex h-36 items-center justify-center bg-mist-100">
+      <div className="relative flex h-36 items-center justify-center bg-mist-100">
         {project.coverImageUrl ? (
           <img src={project.coverImageUrl} alt={project.title} className="h-full w-full object-cover" />
         ) : (
           <ImageOff className="h-8 w-8 text-mist-400" />
+        )}
+        {project.isFeatured && (
+          <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-amber px-2 py-0.5 text-[11px] font-medium text-ink-950">
+            <Star className="h-3 w-3 fill-current" />
+            Mis en avant
+          </span>
         )}
       </div>
 

@@ -1,9 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
+import { Search, Tag, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 import { fetchGallery } from '../features/gallery/galleryApi';
 import { PublicProjectCard } from '../features/public/PublicProjectCard';
+import { useAuth } from '../features/auth/useAuth';
+import { Navbar } from '../components/layout/Navbar';
 import {
   BUSINESS_DOMAIN_LABELS,
   PROJECT_TYPE_LABELS,
@@ -15,27 +17,32 @@ import {
 } from '../types';
 
 export function GalleryPage() {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get('search') ?? '';
+  const tag = searchParams.get('tag') ?? '';
   const businessDomain = (searchParams.get('businessDomain') ?? '') as BusinessDomain | '';
   const projectType = (searchParams.get('projectType') ?? '') as ProjectType | '';
   const level = (searchParams.get('level') ?? '') as ProjectLevel | '';
   const sort = (searchParams.get('sort') ?? 'recent') as GallerySort;
   const page = Number(searchParams.get('page') ?? '1');
 
-  // Champ de recherche : state local pour ne pas réécrire l'URL à chaque
-  // frappe, mais resynchronisé si l'URL change ailleurs (retour arrière).
   const [searchInput, setSearchInput] = useState(search);
+  const [tagInput, setTagInput] = useState(tag);
   useEffect(() => {
     setSearchInput(search);
   }, [search]);
+  useEffect(() => {
+    setTagInput(tag);
+  }, [tag]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['gallery', search, businessDomain, projectType, level, sort, page],
+    queryKey: ['gallery', search, tag, businessDomain, projectType, level, sort, page],
     queryFn: () =>
       fetchGallery({
         search: search || undefined,
+        tag: tag || undefined,
         businessDomain: businessDomain || undefined,
         projectType: projectType || undefined,
         level: level || undefined,
@@ -44,9 +51,6 @@ export function GalleryPage() {
       }),
   });
 
-  // Fusionne un changement dans l'URL actuelle. Réinitialise la page à 1
-  // sauf si le changement EST la page elle-même — un filtre modifié ne doit
-  // jamais laisser l'utilisateur bloqué sur une page qui n'existe plus.
   function updateParams(changes: Record<string, string | undefined>, resetPage = true) {
     const next = new URLSearchParams(searchParams);
     Object.entries(changes).forEach(([key, value]) => {
@@ -67,8 +71,14 @@ export function GalleryPage() {
     updateParams({ search: searchInput.trim() || undefined });
   }
 
+  function handleTagSubmit(e: FormEvent) {
+    e.preventDefault();
+    updateParams({ tag: tagInput.trim() || undefined });
+  }
+
   function resetFilters() {
     setSearchInput('');
+    setTagInput('');
     setSearchParams(new URLSearchParams());
   }
 
@@ -76,24 +86,28 @@ export function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-mist-50">
-      <header className="border-b border-mist-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-violet-gradient font-display text-sm font-bold text-ink-950">
-              D
-            </span>
-            <span className="font-display text-base font-semibold text-mist-900">
-              Dr.D Portfolio
-            </span>
-          </Link>
-          <Link
-            to="/login"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-mist-700 hover:bg-mist-100"
-          >
-            Se connecter
-          </Link>
-        </div>
-      </header>
+      {user ? (
+        <Navbar />
+      ) : (
+        <header className="border-b border-mist-200 bg-white">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-violet-gradient font-display text-sm font-bold text-ink-950">
+                D
+              </span>
+              <span className="font-display text-base font-semibold text-mist-900">
+                Dr.D Portfolio
+              </span>
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-mist-700 hover:bg-mist-100"
+            >
+              Se connecter
+            </Link>
+          </div>
+        </header>
+      )}
 
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="flex items-center gap-2">
@@ -105,24 +119,45 @@ export function GalleryPage() {
         </p>
 
         <div className="mt-6 space-y-4">
-          <form onSubmit={handleSearchSubmit} className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mist-400" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Rechercher un projet..."
-                className="w-full rounded-lg border border-mist-200 py-2 pl-9 pr-3 text-sm text-mist-900 focus:border-teal-600 focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal-600"
-            >
-              Rechercher
-            </button>
-          </form>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <form onSubmit={handleSearchSubmit} className="flex flex-1 gap-2">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mist-400" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Rechercher un projet..."
+                  className="w-full rounded-lg border border-mist-200 py-2 pl-9 pr-3 text-sm text-mist-900 focus:border-teal-600 focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal-600"
+              >
+                Rechercher
+              </button>
+            </form>
+
+            <form onSubmit={handleTagSubmit} className="flex gap-2">
+              <div className="relative flex-1 sm:w-48">
+                <Tag className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mist-400" />
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  placeholder="Tag exact (ex. KPI)"
+                  className="w-full rounded-lg border border-mist-200 py-2 pl-9 pr-3 text-sm text-mist-900 focus:border-teal-600 focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="rounded-lg border border-mist-200 px-4 py-2 text-sm font-medium text-mist-700 hover:bg-mist-100"
+              >
+                Filtrer
+              </button>
+            </form>
+          </div>
 
           <div className="flex flex-wrap gap-2">
             <select
@@ -185,7 +220,7 @@ export function GalleryPage() {
               </button>
             </div>
 
-            {(businessDomain || projectType || level || search) && (
+            {(businessDomain || projectType || level || search || tag) && (
               <button
                 type="button"
                 onClick={resetFilters}
@@ -195,6 +230,12 @@ export function GalleryPage() {
               </button>
             )}
           </div>
+
+          {tag && (
+            <p className="text-xs text-mist-400">
+              Filtré par tag : <span className="font-medium text-mist-700">{tag}</span>
+            </p>
+          )}
         </div>
 
         <div className="mt-8">

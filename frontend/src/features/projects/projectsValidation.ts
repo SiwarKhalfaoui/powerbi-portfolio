@@ -18,15 +18,17 @@ export const projectFormSchema = z
       'DATA_ENGINEERING', 'MICROSOFT_FABRIC', 'ARTIFICIAL_INTELLIGENCE', 'OTHER',
     ]),
     projectType: z.enum(['DASHBOARD', 'REPORT', 'ANALYSIS', 'TEMPLATE', 'CASE_STUDY']),
-    toolsUsed: z.string().max(300).optional().or(z.literal('')), // comma-separated in the UI
+    toolsUsed: z.string().max(300).optional().or(z.literal('')),
     level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
     interactiveLink: urlOrEmpty,
     ownershipConfirmed: z.boolean(),
     videoUrl: urlOrEmpty,
     datasetUrl: urlOrEmpty,
     results: z.string().trim().max(2000).optional().or(z.literal('')),
-    tags: z.string().max(300).optional().or(z.literal('')), // comma-separated in the UI
+    tags: z.string().max(300).optional().or(z.literal('')),
     status: z.enum(['DRAFT', 'PUBLISHED', 'PRIVATE', 'ARCHIVED']),
+    // doc Module 3 — "mettre en avant certains projets".
+    isFeatured: z.boolean(),
   })
   .refine((data) => !data.interactiveLink || data.ownershipConfirmed, {
     message: 'Confirmez que vous détenez les droits sur ce rapport avant d’ajouter un lien',
@@ -46,9 +48,6 @@ export function arrayToCsv(items: string[]): string {
   return items.join(', ');
 }
 
-/** Converts flat form values (+ image state kept separately) into the API payload shape.
- * Empty optional fields are sent as "" (not null) — this matches what
- * backend/projects.validation.ts actually accepts (.or(z.literal(''))). */
 export function toProjectPayload(
   values: ProjectFormValues,
   images: { coverImageUrl: string | null; galleryImageUrls: string[] },
@@ -70,5 +69,6 @@ export function toProjectPayload(
     results: values.results || '',
     tags: csvToArray(values.tags),
     status: values.status,
+    isFeatured: values.isFeatured,
   };
 }

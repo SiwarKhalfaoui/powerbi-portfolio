@@ -53,6 +53,7 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
       results: project?.results ?? '',
       tags: arrayToCsv(project?.tags ?? []),
       status: project?.status ?? 'DRAFT',
+      isFeatured: project?.isFeatured ?? false,
     },
   });
 
@@ -185,6 +186,19 @@ export function ProjectForm({ project, onSubmit, submitLabel }: ProjectFormProps
         <div>
           <Label htmlFor="tags">Tags</Label>
           <Input id="tags" placeholder="Power BI, Finance, KPI" {...register('tags')} />
+        </div>
+
+        <div className="flex items-start gap-2 rounded-lg border border-mist-200 bg-mist-50 px-3.5 py-3">
+          <input
+            id="isFeatured"
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 rounded border-mist-200 text-teal focus-visible:ring-2 focus-visible:ring-teal"
+            {...register('isFeatured')}
+          />
+          <label htmlFor="isFeatured" className="text-sm text-mist-700">
+            Mettre ce projet en avant — il apparaîtra dans une section "Projets phares" en haut de
+            mon portfolio public.
+          </label>
         </div>
       </section>
 

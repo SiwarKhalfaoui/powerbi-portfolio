@@ -8,6 +8,7 @@ export async function fetchGallery(filters: GalleryFilters): Promise<GalleryResu
   if (filters.projectType) params.projectType = filters.projectType;
   if (filters.level) params.level = filters.level;
   if (filters.tool) params.tool = filters.tool;
+  if (filters.tag) params.tag = filters.tag;
   if (filters.sort) params.sort = filters.sort;
   if (filters.page) params.page = String(filters.page);
 

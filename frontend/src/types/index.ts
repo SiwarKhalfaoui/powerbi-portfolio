@@ -152,6 +152,8 @@ export interface Project {
   status: ProjectStatus;
   viewCount: number;
   order: number;
+  // doc Module 3 — "mettre en avant certains projets".
+  isFeatured: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -202,8 +204,6 @@ export interface PublicPortfolio {
   formations: Formation[];
   certifications: Certification[];
   projects: Project[];
-  // doc Module 3 — vrai uniquement pour le propriétaire qui prévisualise
-  // son portfolio pas encore publié.
   isPreview: boolean;
 }
 
@@ -239,6 +239,7 @@ export interface GalleryFilters {
   projectType?: ProjectType;
   level?: ProjectLevel;
   tool?: string;
+  tag?: string;
   sort?: GallerySort;
   page?: number;
 }
