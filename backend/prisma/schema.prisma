@@ -52,12 +52,9 @@ model User {
   linkedinUrl       String?
   githubUrl         String?
   websiteUrl        String?
-  // Distinct from the login email — this is what's shown publicly (doc:
-  // "Email ou formulaire sécurisé", explicitly not the private account email).
   publicContactEmail String?
 
-  // Public portfolio (Module 3) — slug is generated once, the first time
-  // the user publishes, and never changes afterwards (see users.service.ts).
+  // Public portfolio (Module 3)
   slug               String?  @unique
   portfolioPublished Boolean  @default(false)
 
@@ -78,9 +75,6 @@ model User {
   @@map("users")
 }
 
-// Refresh tokens are persisted (hashed) rather than trusted as pure stateless
-// JWTs so a user can be logged out of one or all devices on demand, and a
-// stolen/leaked refresh token can be revoked without rotating server secrets.
 model RefreshToken {
   id        String    @id @default(uuid())
   tokenHash String    @unique
@@ -95,9 +89,6 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-// Same defense-in-depth pattern as RefreshToken: the raw token is only ever
-// emailed to the user, never stored — only its hash is persisted, and it is
-// single-use (usedAt) and short-lived (expiresAt).
 model PasswordResetToken {
   id        String    @id @default(uuid())
   tokenHash String    @unique
@@ -139,8 +130,6 @@ model Project {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   title            String
-  // Unique across the whole platform — this is what the future public
-  // portfolio page will use in the URL (drd.io/username/project-slug).
   slug             String  @unique
   shortDescription String?
   description      String? @db.Text
@@ -153,8 +142,6 @@ model Project {
   coverImageUrl    String?
   galleryImageUrls String[] @default([])
 
-  // The doc requires explicit confirmation of ownership before a report
-  // link can be attached — enforced in the service layer, not just the UI.
   interactiveLink    String?
   ownershipConfirmed Boolean @default(false)
   videoUrl           String?
@@ -166,10 +153,11 @@ model Project {
   status    ProjectStatus @default(DRAFT)
   viewCount Int           @default(0)
 
-  // doc Module 3 — "définir l'ordre des projets". Assigned at creation
-  // (append to the end of the user's list) and rewritten in bulk by
-  // reorderProjects() when the user rearranges their portfolio.
   order Int @default(0) @map("display_order")
+
+  isFeatured Boolean @default(false)
+
+  views ProjectView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -177,6 +165,22 @@ model Project {
   @@index([userId])
   @@index([slug])
   @@map("projects")
+}
+
+// doc Module 6 — "tri par nombre de vues", fiabilisé : une ligne par
+// (projet, visiteur) dans une fenêtre de 24h, plutôt qu'un simple compteur
+// incrémenté à chaque chargement de page. visitorKey vaut "user:<id>" pour
+// un visiteur connecté, "anon:<uuid>" pour un visiteur anonyme identifié
+// via un identifiant généré côté navigateur (jamais lié à un compte).
+model ProjectView {
+  id         String   @id @default(uuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  visitorKey String
+  viewedAt   DateTime @default(now())
+
+  @@index([projectId, visitorKey, viewedAt])
+  @@map("project_views")
 }
 
 
@@ -231,8 +235,6 @@ model Certification {
   @@map("certifications")
 }
 
-// doc Module 4 field 5 + Module 6 "Exemples de catégories" — a closed list so
-// gallery filtering (Module 6) can group projects consistently.
 enum BusinessDomain {
   FINANCE
   COMMERCIAL
