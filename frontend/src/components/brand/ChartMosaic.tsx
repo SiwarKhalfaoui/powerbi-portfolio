@@ -15,9 +15,9 @@ export function ChartMosaic() {
     >
       {/* Card 1 — Bar chart */}
       <g className="animate-float-slow" style={{ transformOrigin: '95px 120px' }}>
-        <rect x="20" y="40" width="150" height="150" rx="16" fill="#121B2E" />
-        <rect x="20" y="40" width="150" height="150" rx="16" stroke="#22304A" />
-        <text x="38" y="68" fill="#8A93A6" fontSize="10" fontFamily="JetBrains Mono">
+        <rect x="20" y="40" width="150" height="150" rx="16" fill="#FFFFFF" />
+        <rect x="20" y="40" width="150" height="150" rx="16" stroke="#DCE1EA" />
+        <text x="38" y="68" fill="#5B6472" fontSize="10" fontFamily="JetBrains Mono">
           VENTES T3
         </text>
         <g style={{ transformOrigin: 'bottom' }}>
@@ -31,12 +31,12 @@ export function ChartMosaic() {
 
       {/* Card 2 — KPI number */}
       <g className="animate-float-slow" style={{ transformOrigin: '340px 90px', animationDelay: '1.5s' }}>
-        <rect x="260" y="20" width="160" height="110" rx="16" fill="#121B2E" />
-        <rect x="260" y="20" width="160" height="110" rx="16" stroke="#22304A" />
-        <text x="278" y="48" fill="#8A93A6" fontSize="10" fontFamily="JetBrains Mono">
+        <rect x="260" y="20" width="160" height="110" rx="16" fill="#FFFFFF" />
+        <rect x="260" y="20" width="160" height="110" rx="16" stroke="#DCE1EA" />
+        <text x="278" y="48" fill="#5B6472" fontSize="10" fontFamily="JetBrains Mono">
           MARGE NETTE
         </text>
-        <text x="278" y="88" fill="#EDF1F7" fontSize="32" fontFamily="Space Grotesk" fontWeight="600">
+        <text x="278" y="88" fill="#101828" fontSize="32" fontFamily="Space Grotesk" fontWeight="600">
           24.8%
         </text>
         <path d="M278 104 L296 96 L310 102 L340 84" stroke="#22D3B4" strokeWidth="2.5" strokeLinecap="round" fill="none" />
@@ -44,12 +44,12 @@ export function ChartMosaic() {
 
       {/* Card 3 — Donut */}
       <g className="animate-float-slow" style={{ transformOrigin: '340px 260px', animationDelay: '0.8s' }}>
-        <rect x="260" y="160" width="160" height="150" rx="16" fill="#121B2E" />
-        <rect x="260" y="160" width="160" height="150" rx="16" stroke="#22304A" />
-        <text x="278" y="188" fill="#8A93A6" fontSize="10" fontFamily="JetBrains Mono">
+        <rect x="260" y="160" width="160" height="150" rx="16" fill="#FFFFFF" />
+        <rect x="260" y="160" width="160" height="150" rx="16" stroke="#DCE1EA" />
+        <text x="278" y="188" fill="#5B6472" fontSize="10" fontFamily="JetBrains Mono">
           CANAUX
         </text>
-        <circle cx="340" cy="248" r="38" fill="none" stroke="#22304A" strokeWidth="14" />
+        <circle cx="340" cy="248" r="38" fill="none" stroke="#EDF1F7" strokeWidth="14" />
         <circle
           cx="340"
           cy="248"
@@ -77,9 +77,9 @@ export function ChartMosaic() {
 
       {/* Card 4 — Sparkline / trend */}
       <g className="animate-float-slow" style={{ transformOrigin: '95px 330px', animationDelay: '0.4s' }}>
-        <rect x="20" y="220" width="200" height="110" rx="16" fill="#121B2E" />
-        <rect x="20" y="220" width="200" height="110" rx="16" stroke="#22304A" />
-        <text x="38" y="248" fill="#8A93A6" fontSize="10" fontFamily="JetBrains Mono">
+        <rect x="20" y="220" width="200" height="110" rx="16" fill="#FFFFFF" />
+        <rect x="20" y="220" width="200" height="110" rx="16" stroke="#DCE1EA" />
+        <text x="38" y="248" fill="#5B6472" fontSize="10" fontFamily="JetBrains Mono">
           VISITEURS / SEMAINE
         </text>
         <polyline
@@ -95,10 +95,10 @@ export function ChartMosaic() {
 
       {/* Card 5 — small tag/profile chip */}
       <g className="animate-float-slow" style={{ transformOrigin: '95px 420px', animationDelay: '2s' }}>
-        <rect x="20" y="360" width="200" height="60" rx="30" fill="#1A2540" />
+        <rect x="20" y="360" width="200" height="60" rx="30" fill="#EDF1F7" />
         <circle cx="52" cy="390" r="16" fill="url(#chip-gradient)" />
-        <rect x="80" y="378" width="90" height="8" rx="4" fill="#5B6472" />
-        <rect x="80" y="392" width="60" height="6" rx="3" fill="#334361" />
+        <rect x="80" y="378" width="90" height="8" rx="4" fill="#8A93A6" />
+        <rect x="80" y="392" width="60" height="6" rx="3" fill="#DCE1EA" />
       </g>
 
       <defs>

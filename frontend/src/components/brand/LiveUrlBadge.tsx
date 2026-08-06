@@ -47,12 +47,12 @@ export function LiveUrlBadge() {
   return (
     <div
       aria-hidden="true"
-      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/85 px-4 py-2 font-mono text-xs text-mist-200 shadow-elevated backdrop-blur-xl"
+      className="inline-flex items-center gap-2 rounded-full border border-mist-200 bg-white px-4 py-2 font-mono text-xs text-mist-700 shadow-elevated"
     >
       <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-teal" />
       <span>
-        drd.io/<span className="text-teal">{text}</span>
-        <span className="ml-0.5 inline-block h-[11px] w-[1.5px] animate-pulse bg-teal align-middle" />
+        drd.io/<span className="text-teal-700">{text}</span>
+        <span className="ml-0.5 inline-block h-[11px] w-[1.5px] animate-pulse bg-teal-700 align-middle" />
       </span>
     </div>
   );

@@ -46,6 +46,11 @@ export default {
       backgroundImage: {
         'teal-violet-gradient': 'linear-gradient(135deg, #22D3B4 0%, #8B7CF6 100%)',
         'amber-teal-gradient': 'linear-gradient(135deg, #F5A623 0%, #22D3B4 100%)',
+        // Nuage de couleur plus riche et plus présent, dès le haut de page
+        // (le header n'est plus jamais sur du blanc plat) — sans repasser
+        // par un fond sombre dominant.
+        'mesh-light':
+          'radial-gradient(700px 600px at 8% -5%, rgba(34,211,180,0.26), transparent 60%), radial-gradient(800px 700px at 95% 0%, rgba(139,124,246,0.26), transparent 60%), radial-gradient(650px 600px at 70% 85%, rgba(245,166,35,0.18), transparent 60%), radial-gradient(500px 450px at 25% 60%, rgba(139,124,246,0.14), transparent 60%)',
       },
       boxShadow: {
         card: '0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10)',

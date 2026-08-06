@@ -35,7 +35,7 @@ export function SkillOrbit({ tags = DEFAULT_TAGS, radius = 270, size = 600, clas
           >
             <div className="animate-spin-slow-reverse">
               <span
-                className="block whitespace-nowrap rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 font-mono text-[11px] text-mist-400 backdrop-blur-sm"
+                className="block whitespace-nowrap rounded-full border border-mist-200 bg-white/90 px-3 py-1.5 font-mono text-[11px] text-mist-700 shadow-card backdrop-blur-sm"
                 style={{ transform: `translate(-50%, -50%) rotate(${-angle}deg)` }}
               >
                 {tag}

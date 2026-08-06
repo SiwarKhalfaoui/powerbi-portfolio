@@ -68,12 +68,12 @@ export function PortfolioMosaic({ className }: PortfolioMosaicProps) {
     <div className={cn('relative h-72 w-72 sm:h-80 sm:w-80', className)}>
       <div
         aria-hidden="true"
-        className="absolute -top-2 right-0 w-52 rotate-6 rounded-2xl border border-white/10 bg-white/5 p-4 opacity-60 backdrop-blur-xl sm:w-56"
+        className="absolute -top-2 right-0 w-52 rotate-6 rounded-2xl border border-mist-200 bg-white/80 p-4 opacity-90 shadow-card backdrop-blur-xl sm:w-56"
       >
-        <span className="inline-block rounded-full border border-violet/30 bg-violet/10 px-2.5 py-1 font-mono text-[10px] text-violet">
+        <span className="inline-block rounded-full border border-violet/30 bg-violet/10 px-2.5 py-1 font-mono text-[10px] text-violet-600">
           {back.tag}
         </span>
-        <p className="mt-3 font-display text-sm font-semibold text-white">{back.title}</p>
+        <p className="mt-3 font-display text-sm font-semibold text-mist-900">{back.title}</p>
         <p className="mt-1 text-xs text-mist-400">par {back.author}</p>
       </div>
 
@@ -89,14 +89,14 @@ export function PortfolioMosaic({ className }: PortfolioMosaicProps) {
                 transition: 'transform 0.2s ease-out',
               } as CSSProperties
             }
-            className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+            className="rounded-2xl border border-mist-200 bg-white/90 p-5 backdrop-blur-xl"
           >
-            <span className="inline-block rounded-full border border-teal/30 bg-teal/10 px-2.5 py-1 font-mono text-[10px] text-teal">
+            <span className="inline-block rounded-full border border-teal/30 bg-teal/10 px-2.5 py-1 font-mono text-[10px] text-teal-700">
               {front.tag}
             </span>
-            <p className="mt-3 font-display text-base font-semibold text-white">{front.title}</p>
+            <p className="mt-3 font-display text-base font-semibold text-mist-900">{front.title}</p>
             <p className="mt-1 text-xs text-mist-400">
-              par <span className="text-mist-200">{front.author}</span> — {front.role}
+              par <span className="text-mist-700">{front.author}</span> — {front.role}
             </p>
             <svg viewBox="0 0 220 64" className="mt-4 h-14 w-full" aria-hidden="true">
               <rect x="0" y="28" width="20" height="36" rx="4" fill="#22D3B4" />
