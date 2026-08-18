@@ -6,6 +6,7 @@ import { fetchGallery } from '../features/gallery/galleryApi';
 import { PublicProjectCard } from '../features/public/PublicProjectCard';
 import { useAuth } from '../features/auth/useAuth';
 import { Navbar } from '../components/layout/Navbar';
+import { Logo } from '../components/ui/Logo';
 import {
   BUSINESS_DOMAIN_LABELS,
   PROJECT_TYPE_LABELS,
@@ -92,9 +93,7 @@ export function GalleryPage() {
         <header className="border-b border-mist-200 bg-white">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
             <Link to="/" className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-violet-gradient font-display text-sm font-bold text-ink-950">
-                D
-              </span>
+              <Logo size="sm" />
               <span className="font-display text-base font-semibold text-mist-900">
                 Dr.D Portfolio
               </span>

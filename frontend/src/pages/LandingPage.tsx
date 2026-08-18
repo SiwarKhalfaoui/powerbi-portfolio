@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BarChart3, Link2, ShieldCheck } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { HeroShowcase } from '../components/brand/HeroShowcase';
+import { Logo } from '../components/ui/Logo';
 
 const FEATURES = [
   {
@@ -34,9 +35,7 @@ export function LandingPage() {
 
         <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-violet-gradient font-display text-base font-bold text-white">
-              D
-            </span>
+            <Logo size="md" />
             <span className="font-display text-lg font-semibold text-mist-900">Dr.D Portfolio</span>
           </div>
           <div className="flex items-center gap-3">
