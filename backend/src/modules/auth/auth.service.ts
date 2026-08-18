@@ -80,6 +80,10 @@ export async function loginUser(
     throw ApiError.unauthorized('Invalid email or password');
   }
 
+  if (user.isSuspended) {
+    throw ApiError.forbidden('This account has been suspended. Please contact support.');
+  }
+
   const accessToken = signAccessToken({ userId: user.id, role: user.role });
   await issueRefreshToken(res, user.id, userAgent);
 
@@ -104,6 +108,17 @@ export async function refreshSession(
   if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
     clearRefreshTokenCookie(res);
     throw ApiError.unauthorized('Session expired. Please log in again.');
+  }
+
+  if (stored.user.isSuspended) {
+    // Revoke this refresh token too, so a suspended account can't keep
+    // retrying refresh with the same cookie.
+    await prisma.refreshToken.update({
+      where: { id: stored.id },
+      data: { revokedAt: new Date() },
+    });
+    clearRefreshTokenCookie(res);
+    throw ApiError.forbidden('This account has been suspended. Please contact support.');
   }
 
   // Rotate: revoke the used token and issue a brand new one.

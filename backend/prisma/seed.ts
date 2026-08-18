@@ -1,4 +1,4 @@
-import { PrismaClient, Availability } from '@prisma/client';
+import { PrismaClient, Availability, Role } from '@prisma/client';
 import { hashPassword } from '../src/utils/password';
 
 const prisma = new PrismaClient();
@@ -28,6 +28,22 @@ async function main() {
   });
 
   console.log('✅ Seeded demo user:', demoUser.email, '(password: Password123)');
+
+  const adminPasswordHash = await hashPassword('AdminPassword123');
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@drd-portfolio.com' },
+    update: {},
+    create: {
+      email: 'admin@drd-portfolio.com',
+      passwordHash: adminPasswordHash,
+      firstName: 'Dr.D',
+      lastName: 'Admin',
+      role: Role.ADMIN,
+      isEmailVerified: true,
+    },
+  });
+
+  console.log('✅ Seeded admin user:', adminUser.email, '(password: AdminPassword123)');
 }
 
 main()
