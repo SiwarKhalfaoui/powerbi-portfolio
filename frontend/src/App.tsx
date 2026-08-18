@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthInitializer } from './features/auth/AuthInitializer';
 import { ProtectedRoute } from './router/ProtectedRoute';
 import { GuestOnlyRoute } from './router/GuestOnlyRoute';
+import { AdminRoute } from './router/AdminRoute';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
@@ -16,6 +17,9 @@ import { ProjectEditPage } from './pages/ProjectEditPage';
 import { PublicPortfolioPage } from './pages/PublicPortfolioPage';
 import { PublicProjectDetailPage } from './pages/PublicProjectDetailPage';
 import { GalleryPage } from './pages/GalleryPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminProjectsPage } from './pages/AdminProjectsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -44,6 +48,12 @@ export default function App() {
               <Route path="/dashboard/projects" element={<ProjectsListPage />} />
               <Route path="/dashboard/projects/new" element={<ProjectCreatePage />} />
               <Route path="/dashboard/projects/:id/edit" element={<ProjectEditPage />} />
+            </Route>
+
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/projects" element={<AdminProjectsPage />} />
             </Route>
 
             <Route path="/gallery" element={<GalleryPage />} />

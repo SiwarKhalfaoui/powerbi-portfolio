@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderKanban, LayoutDashboard, LayoutGrid, LogOut, User as UserIcon } from 'lucide-react';
+import { FolderKanban, LayoutDashboard, LayoutGrid, LogOut, User as UserIcon, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../features/auth/useAuth';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
+import { Logo } from '../ui/Logo';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -19,9 +20,7 @@ export function Navbar() {
     <header className="sticky top-0 z-20 border-b border-mist-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-violet-gradient font-display text-sm font-bold text-ink-950">
-            D
-          </span>
+          <Logo size="sm" />
           <span className="font-display text-base font-semibold text-mist-900">
             Dr.D Portfolio
           </span>
@@ -56,6 +55,15 @@ export function Navbar() {
             <LayoutGrid className="h-4 w-4" />
             Galerie
           </Link>
+          {user.role === 'ADMIN' && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-mist-700 hover:bg-mist-100 hover:text-mist-900"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">

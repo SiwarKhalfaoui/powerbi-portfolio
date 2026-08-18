@@ -23,6 +23,7 @@ export interface User {
   portfolioPublished: boolean;
   role: Role;
   isEmailVerified: boolean;
+  isSuspended: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -246,6 +247,64 @@ export interface GalleryFilters {
 
 export interface GalleryResult {
   projects: GalleryProjectItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// ---- Admin (Module 10) ----
+
+export interface AdminTopProject {
+  id: string;
+  title: string;
+  slug: string;
+  viewCount: number;
+  owner: { firstName: string; lastName: string; slug: string | null };
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  publishedPortfolios: number;
+  totalProjects: number;
+  publishedProjects: number;
+  interactiveProjects: number;
+  totalViews: number;
+  topProjects: AdminTopProject[];
+}
+
+export interface AdminUserItem {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  portfolioPublished: boolean;
+  isSuspended: boolean;
+  slug: string | null;
+  createdAt: string;
+  _count: { projects: number };
+}
+
+export interface AdminUsersResult {
+  users: AdminUserItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminProjectOwner {
+  firstName: string;
+  lastName: string;
+  email: string;
+  slug: string | null;
+}
+
+export interface AdminProjectItem extends Project {
+  owner: AdminProjectOwner;
+}
+
+export interface AdminProjectsResult {
+  projects: AdminProjectItem[];
   total: number;
   page: number;
   limit: number;
