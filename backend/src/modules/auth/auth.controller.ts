@@ -14,6 +14,15 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   return sendSuccess(res, 200, 'Logged in successfully', result);
 });
 
+export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
+  const result = await authService.loginOrSignupWithGoogle(
+    req.body.idToken,
+    res,
+    req.headers['user-agent'] as string | undefined,
+  );
+  return sendSuccess(res, 200, 'Logged in with Google successfully', result);
+});
+
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
   const result = await authService.refreshSession(rawToken, res, req.headers['user-agent'] as string | undefined);

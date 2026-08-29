@@ -28,6 +28,15 @@ export function useAuth() {
     [setAuth],
   );
 
+  const loginWithGoogle = useCallback(
+    async (idToken: string) => {
+      const result = await authApi.googleAuthRequest(idToken);
+      setAuth(result.user, result.accessToken);
+      return result.user;
+    },
+    [setAuth],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logoutRequest();
@@ -43,6 +52,7 @@ export function useAuth() {
     isInitializing,
     register,
     login,
+    loginWithGoogle,
     logout,
     updateUser,
   };

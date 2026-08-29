@@ -4,6 +4,7 @@ import { authRateLimiter, passwordResetRateLimiter } from '../../middleware/rate
 import {
   registerSchema,
   loginSchema,
+  googleAuthSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
 } from './auth.validation';
@@ -13,6 +14,12 @@ const router = Router();
 
 router.post('/register', authRateLimiter, validate({ body: registerSchema }), authController.register);
 router.post('/login', authRateLimiter, validate({ body: loginSchema }), authController.login);
+router.post(
+  '/google',
+  authRateLimiter,
+  validate({ body: googleAuthSchema }),
+  authController.googleAuth,
+);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
 router.post(

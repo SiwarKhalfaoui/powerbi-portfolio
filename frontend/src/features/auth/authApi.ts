@@ -23,6 +23,11 @@ export async function loginRequest(payload: LoginPayload) {
   return data.data;
 }
 
+export async function googleAuthRequest(idToken: string) {
+  const { data } = await api.post<ApiEnvelope<AuthResponseData>>('/auth/google', { idToken });
+  return data.data;
+}
+
 export async function refreshRequest() {
   const { data } = await api.post<ApiEnvelope<AuthResponseData>>('/auth/refresh');
   return data.data;

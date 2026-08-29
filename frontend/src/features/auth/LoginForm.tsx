@@ -8,6 +8,7 @@ import { Label } from '../../components/ui/Label';
 import { FieldError } from '../../components/ui/FieldError';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from './useAuth';
+import { GoogleSignInButton } from './GoogleSignInButton';
 import { loginSchema, LoginFormValues } from './authValidation';
 import { getErrorMessage } from '../../lib/errors';
 
@@ -33,7 +34,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+    <div className="space-y-5">
       {serverError && (
         <div className="flex items-start gap-2 rounded-lg bg-danger-50 px-3.5 py-3 text-sm text-danger">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -41,47 +42,57 @@ export function LoginForm() {
         </div>
       )}
 
-      <div>
-        <Label htmlFor="email">Adresse email</Label>
-        <Input
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder="vous@exemple.com"
-          hasError={Boolean(errors.email)}
-          {...register('email')}
-        />
-        <FieldError message={errors.email?.message} />
+      <GoogleSignInButton onError={setServerError} />
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-mist-200" />
+        <span className="text-xs font-medium text-mist-400">ou</span>
+        <div className="h-px flex-1 bg-mist-200" />
       </div>
 
-      <div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Link to="/forgot-password" className="text-xs font-medium text-teal-700 hover:underline">
-            Mot de passe oublié ?
-          </Link>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        <div>
+          <Label htmlFor="email">Adresse email</Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="vous@exemple.com"
+            hasError={Boolean(errors.email)}
+            {...register('email')}
+          />
+          <FieldError message={errors.email?.message} />
         </div>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          hasError={Boolean(errors.password)}
-          {...register('password')}
-        />
-        <FieldError message={errors.password?.message} />
-      </div>
 
-      <Button type="submit" variant="accent" className="w-full" isLoading={isSubmitting}>
-        Se connecter
-      </Button>
+        <div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Link to="/forgot-password" className="text-xs font-medium text-teal-700 hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </div>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            hasError={Boolean(errors.password)}
+            {...register('password')}
+          />
+          <FieldError message={errors.password?.message} />
+        </div>
 
-      <p className="text-center text-sm text-mist-700">
-        Pas encore de compte ?{' '}
-        <Link to="/signup" className="font-medium text-teal-700 hover:underline">
-          Créer un compte
-        </Link>
-      </p>
-    </form>
+        <Button type="submit" variant="accent" className="w-full" isLoading={isSubmitting}>
+          Se connecter
+        </Button>
+
+        <p className="text-center text-sm text-mist-700">
+          Pas encore de compte ?{' '}
+          <Link to="/signup" className="font-medium text-teal-700 hover:underline">
+            Créer un compte
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }

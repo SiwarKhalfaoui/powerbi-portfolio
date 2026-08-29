@@ -42,6 +42,10 @@ const envSchema = z
       .string()
       .default('false')
       .transform((val) => val === 'true'),
+
+    // Verifies Google ID tokens server-side (audience check). No client
+    // secret needed — the frontend GIS flow never does a code exchange.
+    GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
   })
   .refine(
     (data) =>

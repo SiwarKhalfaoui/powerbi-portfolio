@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '../../config/prisma';
 import { env } from '../../config/env';
 import { ApiError } from '../../utils/ApiError';
@@ -23,6 +24,8 @@ interface AuthResult {
   user: PublicUser;
   accessToken: string;
 }
+
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 /** Creates the refresh token row + sets the httpOnly cookie on the response. */
 async function issueRefreshToken(res: Response, userId: string, userAgent?: string) {
@@ -75,9 +78,78 @@ export async function loginUser(
     throw ApiError.unauthorized('Invalid email or password');
   }
 
+  // Google-only accounts have no passwordHash — fail clearly instead of
+  // crashing inside bcrypt.compare, and point the user at the right flow.
+  if (!user.passwordHash) {
+    throw ApiError.unauthorized('This account uses Google Sign-In. Please continue with Google.');
+  }
+
   const isValid = await comparePassword(input.password, user.passwordHash);
   if (!isValid) {
     throw ApiError.unauthorized('Invalid email or password');
+  }
+
+  if (user.isSuspended) {
+    throw ApiError.forbidden('This account has been suspended. Please contact support.');
+  }
+
+  const accessToken = signAccessToken({ userId: user.id, role: user.role });
+  await issueRefreshToken(res, user.id, userAgent);
+
+  return { user: serializeUser(user), accessToken };
+}
+
+/**
+ * Verifies a Google Identity Services ID token server-side, then either:
+ *  - logs in an existing Google-linked user, or
+ *  - auto-links to an existing password account with the same email
+ *    (safe: Google has already verified ownership of that email), or
+ *  - creates a brand-new user.
+ * Issues tokens through the exact same path as password login, so
+ * everything downstream (middleware, refresh, logout) is provider-agnostic.
+ */
+export async function loginOrSignupWithGoogle(
+  idToken: string,
+  res: Response,
+  userAgent?: string,
+): Promise<AuthResult> {
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw ApiError.unauthorized('Invalid Google credential');
+  }
+
+  if (!payload?.email || !payload.email_verified || !payload.sub) {
+    throw ApiError.unauthorized('Google account email is not verified');
+  }
+
+  let user = await prisma.user.findUnique({ where: { googleId: payload.sub } });
+
+  if (!user) {
+    const existing = await prisma.user.findUnique({ where: { email: payload.email } });
+
+    if (existing) {
+      user = await prisma.user.update({
+        where: { id: existing.id },
+        data: { googleId: payload.sub, isEmailVerified: true },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: {
+          email: payload.email,
+          googleId: payload.sub,
+          firstName: payload.given_name ?? 'User',
+          lastName: payload.family_name ?? '',
+          profilePhotoUrl: payload.picture,
+          isEmailVerified: true,
+        },
+      });
+    }
   }
 
   if (user.isSuspended) {

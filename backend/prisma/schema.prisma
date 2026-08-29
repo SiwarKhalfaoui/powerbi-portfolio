@@ -29,7 +29,11 @@ enum Availability {
 model User {
   id                String       @id @default(uuid())
   email             String       @unique
-  passwordHash      String
+  passwordHash      String?
+
+  // Google OAuth link. Null for password-only accounts. Unique so a single
+  // Google account can never be attached to two users.
+  googleId          String?      @unique
 
   // Identity
   firstName         String
